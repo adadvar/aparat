@@ -40,6 +40,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'api' => [
+            'driver' => 'passport',
+            'provider' => 'usres',
+            'hash' => false,
+        ]
     ],
 
     /*
@@ -105,6 +111,11 @@ return [
     | confirmation screen. By default, the timeout lasts for three hours.
     |
     */
+
+    'token_expiration' => [
+        'token' => env('EXPIRATION_TOKEN',14400 ), // 10 * 24 * 60
+        'refresh_token' => env('EXPIRATION_TOKEN',43200) // 30 * 24 * 60
+    ],
 
     'password_timeout' => 10800,
 
