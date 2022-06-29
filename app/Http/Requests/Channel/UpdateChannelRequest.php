@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Channel;
 
-use App\Rules\MobileRule;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterNewUserRequest extends FormRequest
+class UpdateChannelRequest extends FormRequest
 {
-    use GetRegisterFieldAndValueTrait;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -15,6 +14,10 @@ class RegisterNewUserRequest extends FormRequest
      */
     public function authorize()
     {
+        if($this->route()->hasParameter('id') && auth()->user()->type != User::TYPE_ADMIN) {
+            return false;
+        }
+
         return true;
     }
 
@@ -26,11 +29,9 @@ class RegisterNewUserRequest extends FormRequest
     public function rules()
     {
         return [
-            'mobile' => ['required_without:email', new MobileRule],
-            'email' => 'required_without:mobile|email',   
+            'name' => 'required|string:255',
+            'website' => 'nullable|url|max:255',
+            'info' => 'nullable|string',
         ];
     }
-
-
-   
 }

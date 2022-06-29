@@ -43,7 +43,7 @@ return [
 
         'api' => [
             'driver' => 'passport',
-            'provider' => 'usres',
+            'provider' => 'users',
             'hash' => false,
         ]
     ],
@@ -114,9 +114,14 @@ return [
 
     'token_expiration' => [
         'token' => env('EXPIRATION_TOKEN',14400 ), // 10 * 24 * 60
-        'refresh_token' => env('EXPIRATION_TOKEN',43200) // 30 * 24 * 60
+        'refresh_token' => env('EXPIRATION_REFRESH_TOKEN',43200) // 30 * 24 * 60
     ],
+
+    'change_email_cache_expiration' => env('EXPIRATION_CHANGE_EMAIL_CACHE',1440), // 24 * 60
+
+    'resend_verification_code_time_diff' => env('RESEND_VERIFICATION_CODE_TIME_DIFF',60),
 
     'password_timeout' => 10800,
 
 ];
+ 

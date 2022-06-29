@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Video;
 
-use App\Rules\MobileRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterNewUserRequest extends FormRequest
+class UploadVideoRequest extends FormRequest
 {
-    use GetRegisterFieldAndValueTrait;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -15,6 +13,7 @@ class RegisterNewUserRequest extends FormRequest
      */
     public function authorize()
     {
+
         return true;
     }
 
@@ -26,11 +25,7 @@ class RegisterNewUserRequest extends FormRequest
     public function rules()
     {
         return [
-            'mobile' => ['required_without:email', new MobileRule],
-            'email' => 'required_without:mobile|email',   
+            'video' => 'required|mimes:mp4|max:2048',
         ];
     }
-
-
-   
 }

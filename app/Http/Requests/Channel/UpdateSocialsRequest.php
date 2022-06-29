@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Channel;
 
-use App\Rules\MobileRule;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterNewUserRequest extends FormRequest
+class UpdateSocialsRequest extends FormRequest
 {
-    use GetRegisterFieldAndValueTrait;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -15,6 +14,7 @@ class RegisterNewUserRequest extends FormRequest
      */
     public function authorize()
     {
+
         return true;
     }
 
@@ -26,11 +26,11 @@ class RegisterNewUserRequest extends FormRequest
     public function rules()
     {
         return [
-            'mobile' => ['required_without:email', new MobileRule],
-            'email' => 'required_without:mobile|email',   
+            'cloob' => 'nullable|url',
+	        'lenzor' => 'nullable|url',
+	        'facebook' => 'nullable|url',
+        	'twitter' => 'nullable|url',
+	        'telegram' => 'nullable|url',
         ];
     }
-
-
-   
 }

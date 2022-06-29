@@ -2,6 +2,8 @@
 /public/hot
 /public/storage
 /storage/*.key
+/public/channel-banners
+/public/videos
 /vendor
 .env
 .env.backup

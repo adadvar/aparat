@@ -53,9 +53,17 @@ class User extends Authenticatable
     protected $casts = [
         'verified_at' => 'datetime',
     ];
-
+ 
     public function findForPassport($usrename){
         $user = static::where('mobile', $usrename)->orWhere('email', $usrename)->first();
         return $user;
+    }
+
+    public function setMobileAttribute($value){
+        $this->attributes['mobile'] = to_valid_mobile_number($value);
+    }
+
+    public function channel(){
+        return $this->hasOne(Channel::class);
     }
 }
