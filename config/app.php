@@ -177,6 +177,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        // outer library alireza 
+        ProtoneMedia\LaravelFFMpeg\Support\ServiceProvider::class,
 
         //my custom provider alireza
         App\Providers\ModelObserverProvider::class,
@@ -196,6 +198,8 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
+        'FFMpeg' => ProtoneMedia\LaravelFFMpeg\Support\FFMpeg::class,
     ])->toArray(),
+
 
 ];

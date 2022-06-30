@@ -40,6 +40,7 @@ Route::group([], function($router){
 });
 
 Route::group(['middleware' => ['auth:api']], function($router){
+
     $router->post('change-email', [
         UserController::class, 'changeEmail'
     ])->name('change.email');
@@ -50,6 +51,7 @@ Route::group(['middleware' => ['auth:api']], function($router){
 });
 
 Route::group(['middleware' => ['auth:api'], 'prefix' => '/channel'], function($router){
+
     $router->put('/{id?}' ,[
         ChannelController::class, 'update'
     ])->name('channel.update');
@@ -64,9 +66,14 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/channel'], function($r
 });
 
 Route::group(['middleware' => ['auth:api'], 'prefix' => '/video'], function($router){
+  
     $router->post('/upload', [
         VideoController::class, 'upload'
     ])->name('video.upload');
+
+    $router->post('/upload-banner', [
+        VideoController::class, 'uploadBanner'
+    ])->name('video.upload.banner');
 
     $router->post('/', [
         VideoController::class, 'create'

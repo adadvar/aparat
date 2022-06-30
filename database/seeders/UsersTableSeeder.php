@@ -15,6 +15,10 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
+        if(User::count()){
+            User::truncate();
+        }
+
         $this->createAdminUser();
         $this->createUser();
     }
@@ -34,7 +38,7 @@ class UsersTableSeeder extends Seeder
 
     private function createUser(){
         $user = User::factory()->create([
-            'type' => User::TYPE_ADMIN,
+            'type' => User::TYPE_USER,
             'name' => 'کاربر1',
             'email' => 'user1@aparat.me',
             'mobile' => '+989222222222'

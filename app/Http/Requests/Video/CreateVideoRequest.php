@@ -2,6 +2,10 @@
 
 namespace App\Http\Requests\Video;
 
+use App\Rules\CategoryIdRule;
+use App\Rules\OwnPlaylistIdRule;
+use App\Rules\UploadedVideoBannerIdRule;
+use App\Rules\UploadedVideoIdRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateVideoRequest extends FormRequest
@@ -25,16 +29,16 @@ class CreateVideoRequest extends FormRequest
     public function rules()
     {
         return [
-            'video_id' => 'required' ,
+            'video_id' => ['required', new UploadedVideoIdRule] ,
             'title' => 'required|string|max:255' ,
-            'category' => 'required|exists:categories,id' ,
+            'category' => ['required', new CategoryIdRule(CategoryIdRule::PUBLIC_CATEGORIES)] ,
             'info' => 'nullable|string' ,
             'tags' => 'nullable|array' ,
             'tags.*' => 'exists:tags,id' ,
-            'playlist' => 'nullable|exists:playlist,id' ,
-            'channel_category' => 'nullable|string' ,
-            'banner' => 'nullable|string' ,
-            'publish_at' => 'nullable|date' ,
+            'playlist' => ['nullable', new OwnPlaylistIdRule] ,
+            'channel_category' => ['required', new CategoryIdRule(CategoryIdRule::PRIVATE_CATEGORIES)] ,
+            'banner' => ['nullable', new UploadedVideoBannerIdRule] ,
+            'publish_at' => 'nullable|date_format:Y-m-d H:i:s|after:now' ,
         ];
     }
 }
