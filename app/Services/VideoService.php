@@ -1,24 +1,30 @@
 <?php
 namespace App\Services;
 
-use App\Http\Requests\Channel\UpdateChannelRequest;
-use App\Http\Requests\Channel\UpdateSocialsRequest;
-use App\Http\Requests\Channel\UploadBannerForChannelRequest;
+use App\Events\UploadNewVideo;
+use App\Http\Requests\Video\ChangeStateVideoRequest;
 use App\Http\Requests\Video\CreateVideoRequest;
+use App\Http\Requests\Video\listVideRequest;
+use App\Http\Requests\Video\RepublishVideoRequest;
 use App\Http\Requests\Video\UploadVideoBannerRequest;
 use App\Http\Requests\Video\UploadVideoRequest;
-use App\Models\Channel;
 use App\Models\Playlist;
-use App\Models\User;
 use App\Models\Video;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
 
 class VideoService extends BaseService {
+
+    public static function list(listVideRequest $request){
+        $user = auth()->user();
+        $videos = $user->videos()->paginate();
+        return $videos;
+    }
+
     public static function upload(UploadVideoRequest $request){
 
         try {
@@ -53,7 +59,6 @@ class VideoService extends BaseService {
 
     public static function create(CreateVideoRequest $request){
         try {
-            $myvideo = FFMpeg::fromDisk('videos')->open('/tmp/' . $request->video_id);
             
 
             DB::beginTransaction();
@@ -65,16 +70,20 @@ class VideoService extends BaseService {
                 'channel_category_id' => $request->channel_category,
                 'slug' => '',
                 'info' => $request->info,
-                'duration' => $myvideo->getDurationInSeconds(),
+                'duration' => 0,
                 'banner' => null,
+                'enable_comments' => $request->enable_comments,
                 'publish_at' => $request->publish_at,
-            ]);
+                'state' => Video::STATE_PENDING,
+            ]); 
 
             $video->slug = uniqueId($video->id);
             $video->banner = $video->slug . '-banner';;
             $video->save();
 
-            Storage::disk('videos')->move('/tmp/'. $request->video_id ,auth()->id() . '/' . $video->slug);
+            event(new UploadNewVideo($video, $request));
+            // Storage::disk('videos')->delete($uploadedVideoPath);
+            // Storage::disk('videos')->move('/tmp/'. $request->video_id ,auth()->id() . '/' . $video->slug);
 
             if($request->banner){
                 Storage::disk('videos')->move('/tmp/'. $request->banner ,auth()->id() . '/' . $video->banner);
@@ -91,8 +100,7 @@ class VideoService extends BaseService {
 
             DB::commit();
 
-            return response([
-                'data' => $video], 200);
+            return response($video, 200);
 
         }catch (Exception $e){
             DB::rollBack();
@@ -101,6 +109,20 @@ class VideoService extends BaseService {
             return response(['message' => 'An error has occurred !'], 500);
         }
 
+    }
+
+    public static function changeState(ChangeStateVideoRequest $request){
+        $video = $request->video;
+        $video->state = $request->state;
+        $video->save();
+
+        return response($video);
+    }
+
+    public static function republish(RepublishVideoRequest $request){
+        $user = auth()->user();
+        dd($user->republishedVideos());
+        dd($request->video);
     }
 
 }

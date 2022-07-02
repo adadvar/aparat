@@ -66,4 +66,34 @@ class User extends Authenticatable
     public function channel(){
         return $this->hasOne(Channel::class);
     }
+
+    public function categories(){
+        return $this->hasMany(Category::class);
+    }
+
+    public function playlists(){
+        return $this->hasMany(Playlist::class);
+    }
+
+    public function isAdmin(){
+        return $this->type === User::TYPE_ADMIN;
+    }
+
+    public function isBaseUser(){
+        return $this->type === User::TYPE_USER;
+    }
+
+    public function videos(){
+        return $this->hasMany(Video::class);
+    }
+
+    public function republishedVideos(){
+        return $this->hasManyThrough(Video::class,
+            VideoRepublish::class,
+            'user_id', //republishes_video.user_id
+            'id', //video.id
+            'id', //user.id
+            'video_id', //republishes_video.video_id
+            );
+    }
 }

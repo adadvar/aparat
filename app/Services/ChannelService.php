@@ -9,6 +9,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ChannelService extends BaseService {
@@ -51,17 +52,17 @@ class ChannelService extends BaseService {
 
            $banner = $request->file('banner');
            $fileName = md5(auth()->id()) . '-' . Str::random(15);
-           $banner->move(public_path('channel-banners'), $fileName);
+            Storage::disk('channel')->put($fileName, $banner->get());
 
            $channel = auth()->user()->channel;
            if($channel->banner){
-               unlink(public_path($channel->banner));
+               Storage::disk('channel')->delete($channel->banner);
            }
-           $channel->banner = 'channel-banners/' . $fileName;
+           $channel->banner = Storage::disk('channel')->path($fileName);
            $channel->save();    
            
            return response([
-               'banner' => url('channel-banners/' . $fileName)
+               'banner' => Storage::disk('channel')->url($fileName)
             ], 200);
         }catch (Exception $e){
             return response(['message' => 'An error has occurred !'], 500);

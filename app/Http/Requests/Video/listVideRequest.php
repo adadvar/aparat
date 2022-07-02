@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests\Video;
 
-use Illuminate\Foundation\Http\FormRequest;
 
-class UploadVideoRequest extends FormRequest
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
+
+class listVideRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,7 +27,6 @@ class UploadVideoRequest extends FormRequest
     public function rules()
     {
         return [
-            'video' => 'required|mimes:mp4,mkv|max:5120',
         ];
     }
 }

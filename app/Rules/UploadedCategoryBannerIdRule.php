@@ -4,9 +4,8 @@ namespace App\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
-use League\CommonMark\Extension\CommonMark\Node\Inline\Strong;
 
-class UploadedVideoBannerIdRule implements Rule
+class UploadedCategoryBannerIdRule implements Rule
 {
     /**
      * Create a new rule instance.
@@ -27,7 +26,7 @@ class UploadedVideoBannerIdRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        return Storage::disk('videos')->exists('tmp/'. $value);
+        return Storage::disk('category')->exists('tmp/'. $value);
     }
 
     /**
@@ -37,6 +36,6 @@ class UploadedVideoBannerIdRule implements Rule
      */
     public function message()
     {
-        return 'Invalid category banner id';
+        return 'Invalid category id';
     }
 }

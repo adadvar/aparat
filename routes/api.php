@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChannelController;
+use App\Http\Controllers\PlaylistController;
+use App\Http\Controllers\tagController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Http\Request;
@@ -78,9 +81,63 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/video'], function($rou
     $router->post('/', [
         VideoController::class, 'create'
     ])->name('video.create');
+
+    $router->post('/{video}/republish', [
+        VideoController::class, 'republish'
+    ])->name('video.republish');
+
+    $router->put('/{video}/state', [
+        VideoController::class, 'changeState'
+    ])->name('change.state');
+
+    $router->get('/', [
+        VideoController::class, 'list'
+    ])->name('video.list');
+});
+
+Route::group(['middleware' => ['auth:api'], 'prefix' => '/category'], function($router){
+    $router->get('/', [
+        CategoryController::class, 'index'
+    ])->name('category.all');
+
+    $router->get('/my', [
+        CategoryController::class, 'my'
+    ])->name('category.my');
+
+    $router->post('/upload-banner', [
+        CategoryController::class, 'uploadBanner'
+    ])->name('category.upload.banner');
+
+    $router->post('/', [
+        CategoryController::class, 'create'
+    ])->name('category.create');
 });
 
 
+Route::group(['middleware' => ['auth:api'], 'prefix' => '/playlist'], function($router){
+    $router->get('/', [
+        PlaylistController::class, 'index'
+    ])->name('playlist.all');
+
+    $router->get('/my', [
+        PlaylistController::class, 'my'
+    ])->name('playlist.my');
+
+    $router->post('/', [
+        PlaylistController::class, 'create'
+    ])->name('playlist.create');
+});
+
+Route::group(['middleware' => ['auth:api'], 'prefix' => '/tag'], function($router){
+    $router->get('/', [
+        tagController::class, 'index'
+    ])->name('tag.all');
+
+    $router->post('/', [
+        tagController::class, 'create'
+    ])->name('tag.create');
+
+});
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

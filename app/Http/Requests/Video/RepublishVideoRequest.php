@@ -2,9 +2,16 @@
 
 namespace App\Http\Requests\Video;
 
+use App\Models\Video;
+use App\Rules\CanChangeVideoStateRule;
+use App\Rules\CategoryIdRule;
+use App\Rules\OwnPlaylistIdRule;
+use App\Rules\UploadedVideoBannerIdRule;
+use App\Rules\UploadedVideoIdRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 
-class UploadVideoRequest extends FormRequest
+class RepublishVideoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +20,6 @@ class UploadVideoRequest extends FormRequest
      */
     public function authorize()
     {
-
         return true;
     }
 
@@ -25,7 +31,6 @@ class UploadVideoRequest extends FormRequest
     public function rules()
     {
         return [
-            'video' => 'required|mimes:mp4,mkv|max:5120',
         ];
     }
 }

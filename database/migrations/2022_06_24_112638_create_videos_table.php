@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Video;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,13 +19,15 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('category_id');
             $table->unsignedBigInteger('channel_category_id');
-            $table->string('slug', 50);
+            $table->string('slug', 50)->collation('ascii_bin');
             $table->string('title');
             $table->text('info')->nullable();
             $table->integer('duration');
             $table->string('banner')->nullable();
+            $table->boolean('enable_comments')->default(true);
             $table->timestamp('publish_at')->nullable();
-            $table->timestamps();
+            $table->enum('state' , Video::STATE)->default(Video::STATE_PENDING);
+            $table->timestamps(); 
 
             $table->foreign('user_id')
                 ->references('id')

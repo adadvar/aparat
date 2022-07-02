@@ -16,6 +16,13 @@ class Tag extends Model
 
     public function videos(){
         return $this->belongsToMany(Video::class, 'video_tags');
+    }
 
+    public function toArray()
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+        ];
     }
 }

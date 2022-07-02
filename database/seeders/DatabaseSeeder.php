@@ -28,5 +28,7 @@ class DatabaseSeeder extends Seeder
         
         Schema::enableForeignKeyConstraints();
 
+        $this->command->info('Clear all temporary files');
+        Artisan::call('aparat:clear');
     }
 }

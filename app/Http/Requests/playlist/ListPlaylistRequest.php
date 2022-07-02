@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Video;
+namespace App\Http\Requests\Playlist;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UploadVideoRequest extends FormRequest
+class ListPlaylistRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,7 +25,7 @@ class UploadVideoRequest extends FormRequest
     public function rules()
     {
         return [
-            'video' => 'required|mimes:mp4,mkv|max:5120',
+            
         ];
     }
 }

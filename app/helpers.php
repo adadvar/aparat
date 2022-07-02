@@ -1,6 +1,8 @@
 <?php
 
 use Hashids\Hashids;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 if (!function_exists('to_valid_mobile_number')) {
     function to_valid_mobile_number(string $mobile){
@@ -19,6 +21,21 @@ if(!function_exists('uniqueId')){
         
         $hash = new Hashids(env('APP_KEY'), 10);
         return $hash->encode($value);
+    }
+}
+
+if(!function_exists('clear_storage')){
+    function clear_storage(string $storageName){ 
+        try{
+            Storage::disk($storageName)->delete(Storage::disk($storageName)->allFiles());
+            foreach(Storage::disk($storageName)->allDirectories() as $dir){
+                Storage::disk($storageName)->deleteDirectory($dir);
+            }
+            return true;
+        }catch(Exception $e){
+            Log::error($e);
+            return false;
+        }
     }
 }
 
