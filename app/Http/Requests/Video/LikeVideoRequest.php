@@ -2,16 +2,10 @@
 
 namespace App\Http\Requests\Video;
 
-use App\Models\Video;
-use App\Rules\CanChangeVideoStateRule;
-use App\Rules\CategoryIdRule;
-use App\Rules\OwnPlaylistIdRule;
-use App\Rules\UploadedVideoBannerIdRule;
-use App\Rules\UploadedVideoIdRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
-class RepublishVideoRequest extends FormRequest
+class LikeVideoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -20,7 +14,7 @@ class RepublishVideoRequest extends FormRequest
      */
     public function authorize()
     {
-        return Gate::allows('republish', $this->video);
+        return Gate::forUser(auth('api')->user())->allows('like', $this->video);
     }
 
     /**

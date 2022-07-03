@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -83,17 +82,68 @@ class User extends Authenticatable
         return $this->type === User::TYPE_USER;
     }
 
-    public function videos(){
-        return $this->hasMany(Video::class);
-    }
-
-    public function republishedVideos(){
+    public function favouriteVideos(){
         return $this->hasManyThrough(Video::class,
-            VideoRepublish::class,
+            VideoFavourite::class,
             'user_id', //republishes_video.user_id
             'id', //video.id
             'id', //user.id
             'video_id', //republishes_video.video_id
-            );
+            )->selectRaw('videos.*, true as republished');
+    }
+
+    public function channelVideos()
+    {
+        return $this->hasMany(Video::class)
+            ->selectRaw('*, 0 as republished');
+    }
+
+    public function republishedVideos()
+    {
+        return $this->hasManyThrough(
+            Video::class,
+            VideoRepublish::class,
+            'user_id', // republishes_video.user_id
+            'id', // video.id
+            'id', // user.id
+            'video_id' // republishes_video.video_id
+        )
+            ->selectRaw('videos.*, 1 as republished');
+    }
+
+    public function videos()
+    {
+        return $this->channelVideos()
+            ->union($this->republishedVideos());
+    }
+
+    public function follow(User $user){
+        return UserFollowing::create([
+            'user_id1' => $this->id,
+            'user_id2' => $user->id,
+        ]);
+    }
+
+    public function unfollow(User $user){
+        return UserFollowing::where([
+            'user_id1' => $this->id,
+            'user_id2' => $user->id,
+        ])->delete();
+    }
+
+    public function followings(){
+        return $this->hasManyThrough(User::class, UserFollowing::class,
+            'user_id1',
+            'id',
+            'id',
+            'user_id2');
+    }
+
+    public function followers(){
+        return $this->hasManyThrough(User::class, UserFollowing::class,
+            'user_id2',
+            'id',
+            'id',
+            'user_id1');
     }
 }

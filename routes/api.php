@@ -51,6 +51,18 @@ Route::group(['middleware' => ['auth:api']], function($router){
     $router->match(['post', 'put'], 'change-password', [
         UserController::class, 'changePassword'
     ])->name('change.password');
+
+    Route::group(['prefix' => 'user'], function($router){
+
+        $router->match(['post', 'get'],'/{channel}/follow' ,[
+            UserController::class, 'follow'
+        ])->name('channel.follow');
+
+        $router->match(['post', 'get'],'/{channel}/unfollow' ,[
+            UserController::class, 'unfollow'
+        ])->name('channel.unfollow');
+    });
+
 });
 
 Route::group(['middleware' => ['auth:api'], 'prefix' => '/channel'], function($router){
@@ -66,6 +78,22 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/channel'], function($r
     $router->match(['post', 'put'],'/socials' ,[
         ChannelController::class, 'updateSocials'
     ])->name('channel.update.socials');
+
+   
+});
+
+Route::group(['middleware' => [], 'prefix' => '/video'], function($router){
+    $router->match(['get', 'post'],'/{video}/like', [
+        VideoController::class, 'like'
+    ])->name('video.like');
+
+    $router->match(['get', 'post'],'/{video}/unlike', [
+        VideoController::class, 'unlike'
+    ])->name('video.unlike');
+
+    $router->get('/', [
+        VideoController::class, 'list'
+    ])->name('video.list');
 });
 
 Route::group(['middleware' => ['auth:api'], 'prefix' => '/video'], function($router){
@@ -90,9 +118,10 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/video'], function($rou
         VideoController::class, 'changeState'
     ])->name('change.state');
 
-    $router->get('/', [
-        VideoController::class, 'list'
-    ])->name('video.list');
+    $router->get('/liked', [
+        VideoController::class, 'likedByCurrentUser'
+    ])->name('video.liked');
+   
 });
 
 Route::group(['middleware' => ['auth:api'], 'prefix' => '/category'], function($router){

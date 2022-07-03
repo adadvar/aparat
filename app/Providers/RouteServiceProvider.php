@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Channel;
 use App\Models\Video;
 use FFMpeg\Filters\Video\RotateFilter;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -39,7 +40,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/web.php'));
         });
 
-        Route::model('video', Video::class);
+        $this->registerModelBindings();
     }
 
     /**
@@ -52,5 +53,10 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
+    }
+
+    private function registerModelBindings(){
+        Route::model('video', Video::class);
+        Route::model('channel', Channel::class);
     }
 }

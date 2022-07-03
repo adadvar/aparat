@@ -4,12 +4,18 @@ namespace App\Services;
 use App\Events\UploadNewVideo;
 use App\Http\Requests\Video\ChangeStateVideoRequest;
 use App\Http\Requests\Video\CreateVideoRequest;
+use App\Http\Requests\Video\likedByCurrentUserVideoRequest;
+use App\Http\Requests\Video\LikeVideoRequest;
 use App\Http\Requests\Video\listVideRequest;
 use App\Http\Requests\Video\RepublishVideoRequest;
+use App\Http\Requests\Video\UnLikeVideoRequest;
 use App\Http\Requests\Video\UploadVideoBannerRequest;
 use App\Http\Requests\Video\UploadVideoRequest;
 use App\Models\Playlist;
+use App\Models\User;
 use App\Models\Video;
+use App\Models\VideoFavourite;
+use App\Models\VideoRepublish;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
@@ -17,12 +23,26 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class VideoService extends BaseService {
+class   VideoService extends BaseService {
 
     public static function list(listVideRequest $request){
-        $user = auth()->user();
-        $videos = $user->videos()->paginate();
-        return $videos;
+        $user = auth('api')->user();
+
+        if ($request->has('republished')) {
+            if ($user) {
+                $videos = $request->republished ? $user->republishedVideos() : $user->channelVideos();
+            } else {
+                $videos = $request->republished ? Video::whereRepublished() : Video::whereNotRepublished();
+            }
+        } else {
+            $videos = $user ? $user->videos() : Video::query();
+        }
+
+        $result = $videos
+            ->orderBy('id')
+            ->paginate(10);
+
+        return $result;
     }
 
     public static function upload(UploadVideoRequest $request){
@@ -120,9 +140,52 @@ class VideoService extends BaseService {
     }
 
     public static function republish(RepublishVideoRequest $request){
-        $user = auth()->user();
-        dd($user->republishedVideos());
-        dd($request->video);
+        try{
+            $videoRepublish = VideoRepublish::create([
+                'user_id' => auth()->id,
+                'video_id' => $request->video->id,
+            ]);
+       
+            return response(['message' => 'republish is successfully!'], 200);
+        }catch(Exception $e){
+
+            return response(['message' => 'republish is successfully!'], 500);
+        }
     }
 
+    public static function like(LikeVideoRequest $request){
+
+           VideoFavourite::create([
+            'user_id' =>  auth('api')->id(),
+            'user_ip' => client_ip(),
+            'video_id' =>  $request->video->id,
+        ]); 
+        
+        return  response(['message' => 'Done successfully'], 200);
+
+    }
+
+    public static function unlike(UnLikeVideoRequest $request){
+        $user = auth('api')->user();
+        $conditions = [
+            'user_id' =>  $user ? $user->id : null,
+            'video_id' => $request->video->id,
+        ];
+
+        if(empty($user)){
+            $conditions['user_ip'] = client_ip();
+        }
+        VideoFavourite::where($conditions)->delete();
+        
+        return  response(['message' => 'Done successfully'], 200);
+
+    }
+
+    public static function likedByCurrentUser(likedByCurrentUserVideoRequest $request){
+        dd('unlike');
+        $user = $request->user();
+        $videos = $user->favouriteVideos()
+            ->paginate();
+        return $videos;    
+    }
 }

@@ -13,9 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('vidoe_favourites', function (Blueprint $table) {
+        Schema::create('video_favourites', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('user_ip', 100);
             $table->unsignedBigInteger('video_id');
             $table->timestamps();
 

@@ -38,4 +38,52 @@ class Video extends Model
     public function user(){
         return $this->belongsTo(User::class);
     }
+
+    public function isInState($state){
+        return $this->state == $state;
+    }
+
+    public function isPending(){
+        return $this->isInState(self::STATE_PENDING);
+    }
+
+    public function isAccepted(){
+        return $this->isInState(self::STATE_ACCEPTED);
+    }
+
+    public function isConverted(){
+        return $this->isInState(self::STATE_CONVERTED);
+    }
+
+    public function isBlocked(){
+        return $this->isInState(self::STATE_BLOCKED);
+    }
+
+    public function toArray()
+    {
+        $data = parent::toArray();
+
+        $conditions = [
+            'video_id' => $this->id,
+            'user_id' => auth('api')->check() ? auth('api')->id() : null,
+        ];
+
+        if (!auth('api')->check()){
+            $conditions['user_ip'] = client_ip();
+        }
+
+        $data['liked'] = VideoFavourite::where($conditions)->count();
+
+        return $data;
+    }
+
+    public static function whereNotRepublished()
+    {
+        return static::whereRaw('id not in (select video_id from video_republishes)');
+    }
+
+    public static function whereRepublished()
+    {
+        return static::whereRaw('id in (select video_id from video_republishes)');
+    }
 }

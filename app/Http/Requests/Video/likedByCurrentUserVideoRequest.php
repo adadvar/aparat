@@ -11,7 +11,7 @@ use App\Rules\UploadedVideoIdRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
-class RepublishVideoRequest extends FormRequest
+class likedByCurrentUserVideoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -20,7 +20,7 @@ class RepublishVideoRequest extends FormRequest
      */
     public function authorize()
     {
-        return Gate::allows('republish', $this->video);
+        return Gate::allows('seeLikedList', Video::class);
     }
 
     /**

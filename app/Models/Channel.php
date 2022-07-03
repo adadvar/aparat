@@ -28,4 +28,9 @@ class Channel extends Model
         
         return json_decode($this->attributes['socials'], true);
     }
+
+    public function getRouteKeyName()
+    {
+        return 'name';
+    }
 }

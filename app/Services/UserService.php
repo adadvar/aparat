@@ -5,9 +5,13 @@ use App\Exceptions\UserAlreadyRegisteredException;
 use App\Http\Requests\Auth\RegisterNewUserRequest;
 use App\Http\Requests\Auth\RegisterVerifyUserRequest;
 use App\Http\Requests\Auth\ResendVerificationCodeRequest;
+use App\Http\Requests\Channel\FollowChannelRequest;
+use App\Http\Requests\Channel\UnFollowChannelRequest;
 use App\Http\Requests\User\ChangeEmailRequest;
 use App\Http\Requests\User\ChangeEmailSubmitRequest;
 use App\Http\Requests\User\ChangePasswordRequest;
+use App\Http\Requests\User\FollowUserRequest;
+use App\Http\Requests\User\UnFollowUserRequest;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -159,5 +163,17 @@ class UserService extends BaseService {
             Log::error($e);
             return response(['message' => 'An error has occurred !']);
         }
+    }
+
+    public static function follow(FollowUserRequest $request){
+        $user = $request->user();
+        $user->follow($request->channel->user);
+        return response(['message' => 'followed successfully!'], 200);
+    }
+
+    public static function unfollow(UnFollowUserRequest $request){
+        $user = $request->user();
+        $user->unfollow($request->channel->user);
+        return response(['message' => 'unfollowed successfully!'], 200);
     }
 }
