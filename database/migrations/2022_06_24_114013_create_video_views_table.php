@@ -16,11 +16,12 @@ return new class extends Migration
         Schema::create('video_views', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
+            $table->string ('user_ip', 100);
             $table->unsignedBigInteger('video_id');
             $table->timestamps();
 
             $table->foreign('user_id')
-                ->references('id')
+                ->references('id')  
                 ->on('users')
                 ->onDelete('set null')
                 ->onUpdate('cascade');

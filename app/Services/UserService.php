@@ -10,8 +10,10 @@ use App\Http\Requests\Channel\UnFollowChannelRequest;
 use App\Http\Requests\User\ChangeEmailRequest;
 use App\Http\Requests\User\ChangeEmailSubmitRequest;
 use App\Http\Requests\User\ChangePasswordRequest;
+use App\Http\Requests\User\FollowingUserRequest;
 use App\Http\Requests\User\FollowUserRequest;
 use App\Http\Requests\User\UnFollowUserRequest;
+use App\Http\Requests\User\UnregisterUserRequest;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -161,7 +163,7 @@ class UserService extends BaseService {
 
         }catch(Exception $e){
             Log::error($e);
-            return response(['message' => 'An error has occurred !']);
+            return response(['message' => 'An error has occurred !'], 500);
         }
     }
 
@@ -175,5 +177,30 @@ class UserService extends BaseService {
         $user = $request->user();
         $user->unfollow($request->channel->user);
         return response(['message' => 'unfollowed successfully!'], 200);
+    }
+
+    public static function followings(FollowingUserRequest $request) {
+        return $request->user()
+            ->followings()
+            ->paginate();
+    }
+
+    public static function followers(FollowingUserRequest $request) {
+        return $request->user()
+            ->followers()
+            ->paginate();
+    }
+
+    public static function unregister(UnregisterUserRequest $request){
+        try{
+            DB::beginTransaction();
+            $request->user()->delete();
+            DB::commit();
+            return response(['message' => 'unregistered successfully!'], 200);
+        }catch(Exception $e){
+            DB::rollBack();
+            Log::error($e);
+            return response(['message' => 'An error has occurred !'], 500); 
+        }
     }
 }

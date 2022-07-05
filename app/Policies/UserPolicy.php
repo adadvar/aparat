@@ -27,7 +27,11 @@ class UserPolicy
    }
 
    public function unfollow(User $user, User $otherUser){
-    return ($user->id != $otherUser->id) &&
-     ($user->followings()->where('user_id2', $otherUser->id)->count());
-}
+        return ($user->id != $otherUser->id) &&
+        ($user->followings()->where('user_id2', $otherUser->id)->count());
+    }
+
+    public function seeFolloingList(User $user) {
+        return true;
+    }
 }

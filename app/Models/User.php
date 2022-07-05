@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     const TYPE_ADMIN = 'admin';
     const TYPE_USER = 'user';
@@ -145,5 +146,24 @@ class User extends Authenticatable
             'id',
             'id',
             'user_id1');
+    }
+
+    public function views(){
+        return $this
+            ->belongsToMany(Video::class, 'video_views')
+            ->withTimestamps();
+    }
+
+    public function comments(){
+        return $this->hasMany(Comment::class);
+    }
+
+    public static function boot(){
+        parent::boot();
+
+        static::deleting(function($comment){
+            $comment->channelVideos()->delete();
+            $comment->playlists()->delete();
+        });
     }
 }

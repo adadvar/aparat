@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Channel\FollowChannelRequest;
-use App\Http\Requests\Channel\UnFollowChannelRequest;
+
 use App\Http\Requests\User\ChangeEmailRequest;
 use App\Http\Requests\User\ChangeEmailSubmitRequest;
 use App\Http\Requests\User\ChangePasswordRequest;
+use App\Http\Requests\User\FollowingUserRequest;
 use App\Http\Requests\User\FollowUserRequest;
 use App\Http\Requests\User\UnFollowUserRequest;
+use App\Http\Requests\User\UnregisterUserRequest;
 use App\Services\UserService;
 
 
@@ -35,4 +36,16 @@ class UserController extends Controller
     public function unfollow(UnFollowUserRequest $request){
         return UserService::unfollow($request);
     } 
+
+    public function followings(FollowingUserRequest $request){
+         return UserService::followings($request);
+    }
+
+    public function followers(FollowingUserRequest $request){
+        return UserService::followers($request);
+   }
+
+   public function unregister(UnregisterUserRequest $request){
+    return UserService::unregister($request);
+}
 }

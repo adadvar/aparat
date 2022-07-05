@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Channel;
+use App\Models\Comment;
 use App\Models\Video;
 use FFMpeg\Filters\Video\RotateFilter;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -58,5 +59,6 @@ class RouteServiceProvider extends ServiceProvider
     private function registerModelBindings(){
         Route::model('video', Video::class);
         Route::model('channel', Channel::class);
+        Route::model('comment', Comment::class);
     }
 }

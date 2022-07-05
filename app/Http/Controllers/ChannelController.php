@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Channel\FollowChannelRequest;
-use App\Http\Requests\Channel\UnFollowChannelRequest;
+use App\Http\Requests\Channel\StatisticsRequest;
 use App\Http\Requests\Channel\UpdateChannelRequest;
 use App\Http\Requests\Channel\UpdateSocialsRequest;
 use App\Http\Requests\Channel\UploadBannerForChannelRequest;
@@ -25,6 +24,9 @@ class ChannelController extends Controller
         return ChannelService::updateSocials($request);
     } 
 
+    public function statistics(StatisticsRequest $request){
+        return ChannelService::statistics($request);
+    }
     
 } 
  

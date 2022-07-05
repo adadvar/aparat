@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChannelController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PlaylistController;
 use App\Http\Controllers\tagController;
 use App\Http\Controllers\UserController;
@@ -56,11 +57,23 @@ Route::group(['middleware' => ['auth:api']], function($router){
 
         $router->match(['post', 'get'],'/{channel}/follow' ,[
             UserController::class, 'follow'
-        ])->name('channel.follow');
+        ])->name('user.follow');
 
         $router->match(['post', 'get'],'/{channel}/unfollow' ,[
             UserController::class, 'unfollow'
-        ])->name('channel.unfollow');
+        ])->name('user.unfollow');
+
+        $router->get('/followings' ,[
+            UserController::class, 'followings'
+        ])->name('user.followings');
+
+        $router->get('/followers' ,[
+            UserController::class, 'followers'
+        ])->name('user.followers');
+
+        $router->delete('/me' ,[
+            UserController::class, 'unregister'
+        ])->name('user.unregister');
     });
 
 });
@@ -79,7 +92,9 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/channel'], function($r
         ChannelController::class, 'updateSocials'
     ])->name('channel.update.socials');
 
-   
+    $router->get('/statistics' ,[
+        ChannelController::class, 'statistics'
+    ])->name('channel.statistics');
 });
 
 Route::group(['middleware' => [], 'prefix' => '/video'], function($router){
@@ -94,6 +109,11 @@ Route::group(['middleware' => [], 'prefix' => '/video'], function($router){
     $router->get('/', [
         VideoController::class, 'list'
     ])->name('video.list');
+
+    $router->get('/{video}', [
+        VideoController::class, 'show'
+    ])->name('video.show');
+    
 });
 
 Route::group(['middleware' => ['auth:api'], 'prefix' => '/video'], function($router){
@@ -168,6 +188,24 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/tag'], function($route
 
 });
 
+
+Route::group(['middleware' => ['auth:api'], 'prefix' => '/comment'], function($router){
+    $router->get('/', [
+        CommentController::class, 'index'
+    ])->name('comment.all');
+
+    $router->post('/', [
+        CommentController::class, 'create'
+    ])->name('comment.create');
+
+    $router->match(['post', 'put'],'/{comment}/state', [
+        CommentController::class, 'changeState'
+    ])->name('comment.change.state');
+
+    $router->delete('/{comment}', [
+        CommentController::class, 'delete'
+    ])->name('comment.delete');
+}); 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

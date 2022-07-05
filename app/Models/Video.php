@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Video extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     const STATE_PENDING= 'pending';
     const STATE_CONVERTED= 'converted';
@@ -85,5 +86,26 @@ class Video extends Model
     public static function whereRepublished()
     {
         return static::whereRaw('id in (select video_id from video_republishes)');
+    }
+
+    public static function channelComments($userId)
+    {
+        return static::where('videos.user_id', $userId)
+            ->join('comments', 'videos.id', '=', 'comments.video_id');
+    }
+
+    public function viewers(){
+        return $this
+            ->belongsToMany(User::class, 'video_views')
+            ->withTimestamps();
+    }
+
+    public static function views($userId){
+        return static::where('videos.user_id', $userId)
+            ->join('video_views', 'videos.id', '=', 'video_views.video_id');
+    }
+
+    public function comments(){
+        return $this->hasMany(Comment::class);
     }
 }

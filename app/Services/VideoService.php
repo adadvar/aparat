@@ -2,12 +2,14 @@
 namespace App\Services;
 
 use App\Events\UploadNewVideo;
+use App\Events\VisitVideo;
 use App\Http\Requests\Video\ChangeStateVideoRequest;
 use App\Http\Requests\Video\CreateVideoRequest;
 use App\Http\Requests\Video\likedByCurrentUserVideoRequest;
 use App\Http\Requests\Video\LikeVideoRequest;
 use App\Http\Requests\Video\listVideRequest;
 use App\Http\Requests\Video\RepublishVideoRequest;
+use App\Http\Requests\Video\ShowVideoRequest;
 use App\Http\Requests\Video\UnLikeVideoRequest;
 use App\Http\Requests\Video\UploadVideoBannerRequest;
 use App\Http\Requests\Video\UploadVideoRequest;
@@ -43,6 +45,12 @@ class   VideoService extends BaseService {
             ->paginate(10);
 
         return $result;
+    }
+
+    public static function show(ShowVideoRequest $request){
+
+        event(new VisitVideo($request->video));
+        return $request->video;
     }
 
     public static function upload(UploadVideoRequest $request){
