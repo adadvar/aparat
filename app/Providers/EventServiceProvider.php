@@ -8,6 +8,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use Laravel\Passport\Events\AccessTokenCreated;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -23,9 +24,17 @@ class EventServiceProvider extends ServiceProvider
         UploadNewVideo::class => [
             'App\Listeners\ProcessUploadedVideo'
         ],
+        DeleteVideo::class => [
+            'App\Listeners\DeleteVideoData'
+        ],
         VisitVideo::class => [
             'App\Listeners\AddVisitedVideoLogToVideoViewsTable'
-        ]
+        ],
+        
+        AccessTokenCreated::class => [
+            'App\Listeners\ActiveUnregisteredUserAfterLogin'
+        ], 
+
     ];
 
     /**

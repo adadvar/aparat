@@ -69,4 +69,9 @@ class VideoPolicy
    public function seeLikedList(User $user, Video $video = null){
         return true;
    }
+
+   public function delete(User $user, Video $video)
+    {
+        return $user->id === $video->user_id;
+    }
 }

@@ -55,7 +55,7 @@ class User extends Authenticatable
     ];
  
     public function findForPassport($usrename){
-        $user = static::where('mobile', $usrename)->orWhere('email', $usrename)->first();
+        $user = static::withTrashed()->where('mobile', $usrename)->orWhere('email', $usrename)->first();
         return $user;
     }
 
@@ -164,6 +164,10 @@ class User extends Authenticatable
         static::deleting(function($comment){
             $comment->channelVideos()->delete();
             $comment->playlists()->delete();
+        });
+        static::restoring(function ($user) {
+            $user->channelVideos()->restore();
+            $user->playlists()->restore();
         });
     }
 }

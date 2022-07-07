@@ -141,6 +141,10 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/video'], function($rou
     $router->get('/liked', [
         VideoController::class, 'likedByCurrentUser'
     ])->name('video.liked');
+
+    $router->delete('/{video}', [
+        VideoController::class, 'delete'
+    ])->name('video.delete');
    
 });
 

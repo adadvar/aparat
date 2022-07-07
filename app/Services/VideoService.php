@@ -1,10 +1,12 @@
 <?php
 namespace App\Services;
 
+use App\Events\DeleteVideo;
 use App\Events\UploadNewVideo;
 use App\Events\VisitVideo;
 use App\Http\Requests\Video\ChangeStateVideoRequest;
 use App\Http\Requests\Video\CreateVideoRequest;
+use App\Http\Requests\Video\DeleteVideoRequest;
 use App\Http\Requests\Video\likedByCurrentUserVideoRequest;
 use App\Http\Requests\Video\LikeVideoRequest;
 use App\Http\Requests\Video\listVideRequest;
@@ -195,5 +197,21 @@ class   VideoService extends BaseService {
         $videos = $user->favouriteVideos()
             ->paginate();
         return $videos;    
+    }
+
+    public static function delete(DeleteVideoRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+            $request->video->forceDelete();
+            event(new DeleteVideo($request->video));
+            DB::commit();
+            return response(['message' => 'حذف با موفقیت انجام شد'], 200);
+        } catch (Exception $exception) {
+            DB::rollBack();
+            Log::error($exception);
+            return response(['message' => 'حذف انجام نشد'], 500);
+        }
+
     }
 }
