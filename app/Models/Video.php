@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class Video extends Model
 {
@@ -60,20 +62,25 @@ class Video extends Model
         return $this->isInState(self::STATE_BLOCKED);
     }
 
+    public function getVideoLinkAttribute(){
+
+        return Storage::disk('videos')
+            ->url($this->user_id . '/' . $this->slug . '.mp4');
+    }
+
+    public function getBannerLinkAttribute(){
+
+        return Storage::disk('videos')
+            ->url($this->user_id . '/' . $this->slug . '-banner');
+    }
+
     public function toArray()
     {
         $data = parent::toArray();
 
-        $conditions = [
-            'video_id' => $this->id,
-            'user_id' => auth('api')->check() ? auth('api')->id() : null,
-        ];
-
-        if (!auth('api')->check()){
-            $conditions['user_ip'] = client_ip();
-        }
-
-        $data['liked'] = VideoFavourite::where($conditions)->count();
+        $data['link'] = $this->video_link;
+        $data['banner_link'] = $this->banner_link;
+        $data['views'] = VideoView::where('video_id', $this->id)->count();
 
         return $data;
     }
@@ -107,5 +114,20 @@ class Video extends Model
 
     public function comments(){
         return $this->hasMany(Comment::class);
+    }
+
+    public function related(){
+         return static::selectRaw('COUNT(*) related_tags, videos.*')
+            ->leftJoin('video_tags', 'videos.id', '=', 'video_tags.video_id')
+            ->whereRaw('videos.id != ' . $this->id)
+            ->whereRaw("videos.state = '" . self::STATE_ACCEPTED . "'")
+            ->whereIn(DB::raw('video_tags.tag_id'), function ($query) {
+                $query->selectRaw('video_tags.tag_id')
+                    ->from('videos')
+                    ->leftJoin('video_tags', 'videos.id', '=', 'video_tags.video_id')
+                    ->whereRaw('videos.id=' . $this->id);
+            })
+            ->groupBy(DB::raw('videos.id'))
+            ->orderBy('related_tags', 'desc');
     }
 }

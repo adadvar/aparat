@@ -7,12 +7,16 @@ use App\Events\VisitVideo;
 use App\Http\Requests\Video\ChangeStateVideoRequest;
 use App\Http\Requests\Video\CreateVideoRequest;
 use App\Http\Requests\Video\DeleteVideoRequest;
+use App\Http\Requests\Video\FavouritesVideoListRequest;
 use App\Http\Requests\Video\likedByCurrentUserVideoRequest;
 use App\Http\Requests\Video\LikeVideoRequest;
 use App\Http\Requests\Video\listVideRequest;
 use App\Http\Requests\Video\RepublishVideoRequest;
+use App\Http\Requests\Video\ShowStatisticsVideoRequest;
+use App\Http\Requests\Video\ShowVideoCommentsRequest;
 use App\Http\Requests\Video\ShowVideoRequest;
 use App\Http\Requests\Video\UnLikeVideoRequest;
+use App\Http\Requests\Video\UpdateVideoRequest;
 use App\Http\Requests\Video\UploadVideoBannerRequest;
 use App\Http\Requests\Video\UploadVideoRequest;
 use App\Models\Playlist;
@@ -27,7 +31,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class   VideoService extends BaseService {
+class VideoService extends BaseService {
 
     public static function list(listVideRequest $request){
         $user = auth('api')->user();
@@ -52,7 +56,28 @@ class   VideoService extends BaseService {
     public static function show(ShowVideoRequest $request){
 
         event(new VisitVideo($request->video));
-        return $request->video;
+        $videoData = $request->video->toArray(); 
+        
+        $conditions = [
+            'video_id' => $request->video->id,
+            'user_id' => auth('api')->check() ? auth('api')->id() : null,
+        ];
+        
+        if (!auth('api')->check()){
+            $conditions['user_ip'] = client_ip();
+        }
+        $videoData['liked'] = VideoFavourite::where($conditions)->count();
+        $videoData['tags'] = $request->video->tags;
+
+
+        $comments = $request->video->comments;
+        $videoData['comments'] = sort_comments($comments);
+
+        $videoData['related_videos'] = $request->video->related()->take(5)->get();
+
+        $videoData['playlist'] = $request->video->playlist()->with('videos')->first();
+
+        return $videoData;
     }
 
     public static function upload(UploadVideoRequest $request){
@@ -90,7 +115,6 @@ class   VideoService extends BaseService {
     public static function create(CreateVideoRequest $request){
         try {
             
-
             DB::beginTransaction();
             
             $video = Video::create([
@@ -192,7 +216,6 @@ class   VideoService extends BaseService {
     }
 
     public static function likedByCurrentUser(likedByCurrentUserVideoRequest $request){
-        dd('unlike');
         $user = $request->user();
         $videos = $user->favouriteVideos()
             ->paginate();
@@ -202,7 +225,7 @@ class   VideoService extends BaseService {
     public static function delete(DeleteVideoRequest $request)
     {
         try {
-            DB::beginTransaction();
+            DB::beginTransaction();  
             $request->video->forceDelete();
             event(new DeleteVideo($request->video));
             DB::commit();
@@ -214,4 +237,85 @@ class   VideoService extends BaseService {
         }
 
     }
+
+    public static function statistics(ShowStatisticsVideoRequest $request){
+
+        $fromDate = now()->subDays($request->get('last_n_days', 7 ))->toDateString();
+        $data = [  
+            'views' => [],
+            'total_views' => 0,
+        ];
+
+
+        Video::views($request->user()->id)
+            ->where('videos.id', $request->video->id)
+            ->whereRaw("date(video_views.created_at ) >= '$fromDate'")
+            ->selectRaw('date(video_views.created_at ) as date, count(*) as views ')
+            ->groupBy(DB::raw('date(video_views.created_at )'))
+            ->get()
+            ->each(function($item) use(&$data){
+            $data['total_views'] += $item->views ;
+            $data['views'][$item->date] = $item->views;
+        });
+        return $data;
+    }
+
+    public static function update(UpdateVideoRequest $request){
+
+        $video = $request->video;
+
+        try {
+            
+            DB::beginTransaction();
+            
+            if ($request->has('title')) $video->title = $request->title;
+            if ($request->has('info')) $video->info = $request->info;
+            if ($request->has('category')) $video->category_id = $request->category;
+            if ($request->has('chanel_category')) $video->chanel_category_id = $request->chanel_category;
+            if ($request->has('enable_comments')) $video->enable_comments = $request->enable_comments;
+            $video->save();
+
+            Storage::disk('videos')->delete(auth()->id() . '/' . $video->banner);
+
+            if($request->banner){
+                Storage::disk('videos')->move('/tmp/'. $request->banner ,auth()->id() . '/' . $video->banner);
+            }
+
+
+            if($request->tags){
+                $video->tags()->sync($request->tags);
+            }
+
+            DB::commit();
+
+            return response($video, 200);
+
+        }catch (Exception $e){
+            DB::rollBack();
+
+            Log::error($e);
+            return response(['message' => 'An error has occurred !'], 500);
+        }
+
+    }
+
+    public static function favourites(FavouritesVideoListRequest $request){
+        $videos = $request->user()
+            ->favouriteVideos()
+            ->selectRaw('videos.* ,channels.name channel_name')
+            ->leftJoin('channels', 'channels.user_id', '=', 'videos.user_id')
+            ->get();
+
+            return [
+                'videos' => $videos,
+                'total_fav_videos' => count($videos),
+                'total_videos' => $request->user()->channelVideos()->count(),
+                'total_comments' => Video::channelComments($request->user()->id)
+                    ->selectRaw('comments.*')
+                    ->count(),
+                'total_views' => Video::views($request->user()->id)->count()
+            ];
+
+    }
+
 }

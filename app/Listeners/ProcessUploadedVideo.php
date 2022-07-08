@@ -26,7 +26,8 @@ class ProcessUploadedVideo
     public function handle(UploadNewVideo $event)
     {
         ConvertAndAddWaterMarkToUploadedVideoJob::dispatch(
-            $event->getVideo(), $event->getRequest()->video_id,
+            $event->getVideo(),
+             $event->getRequest()->video_id,
              $event->getRequest()->enable_watermark);
     }
 }

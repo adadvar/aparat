@@ -97,6 +97,8 @@ class ChannelService extends BaseService {
     }
 
     public static function statistics(StatisticsRequest $request) {
+
+        $fromDate = now()->subDays($request->get('last_n_days', 7))->toDateString();
         
         $data = [  
             'views' => [],
@@ -109,6 +111,7 @@ class ChannelService extends BaseService {
         ];
 
         Video::views($request->user()->id)
+            ->whereRaw("date(video_views.created_at ) >= '$fromDate'")
             ->selectRaw('date(video_views.created_at ) as date, count(*) as views ')
             ->groupBy(DB::raw('date(video_views.created_at )'))
             ->get()

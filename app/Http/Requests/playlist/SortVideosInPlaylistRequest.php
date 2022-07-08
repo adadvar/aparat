@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Channel;
+namespace App\Http\Requests\Playlist;
 
-use App\Models\User;
+use App\Rules\SortablePlaylistVideosRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 
-class StatisticsRequest extends FormRequest
+class SortVideosInPlaylistRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,8 +15,7 @@ class StatisticsRequest extends FormRequest
      */
     public function authorize()
     {
-
-        return true;
+        return Gate::allows('sortVideos', [$this->playlist]);
     }
 
     /**
@@ -26,7 +26,7 @@ class StatisticsRequest extends FormRequest
     public function rules()
     {
         return [
-            'last_n_days' =>'nullable|in:7,14,30,90'
+            'videos' => ['required', new SortablePlaylistVideosRule($this->playlist) ]
         ];
     }
 }

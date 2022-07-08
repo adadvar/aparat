@@ -38,7 +38,7 @@ class UploadNewVideo
     {
         return new PrivateChannel('channel-name');
     }
-
+    
     public function getRequest(): Request {
         return $this->request;
     }

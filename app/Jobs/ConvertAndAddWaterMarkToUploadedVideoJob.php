@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Video;
+use Carbon\TranslatorStrongTypeInterface;
 use FFMpeg\Filters\Video\CustomFilter;
 use FFMpeg\Format\Video\X264;
 use Illuminate\Bus\Queueable;
@@ -43,6 +44,11 @@ class ConvertAndAddWaterMarkToUploadedVideoJob implements ShouldQueue
     public function handle()
     {
         $uploadedVideoPath = '/tmp/' . $this->videoId;
+        if(!Video::where('id', $this->videoId)->count()){
+            Storage::disk('videos')->delete($uploadedVideoPath);
+            return;
+        }
+
         $videoUploaded = FFMpeg::fromDisk('videos')->open($uploadedVideoPath);
         $format = new X264('libmp3lame');
 

@@ -2,9 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Providers\DeleteVideo;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Events\DeleteVideo;
 use Illuminate\Support\Facades\Storage;
 
 class DeleteVideoData
@@ -34,6 +32,5 @@ class DeleteVideoData
         Storage::disk('videos')
             ->delete(auth()->id() . '/' . $video->slug . '.mp4');
 
-            dd($video);
     }
 }

@@ -110,43 +110,57 @@ Route::group(['middleware' => [], 'prefix' => '/video'], function($router){
         VideoController::class, 'list'
     ])->name('video.list');
 
-    $router->get('/{video}', [
+    $router->get('/{video}/show', [
         VideoController::class, 'show'
     ])->name('video.show');
+});
+
+    Route::group(['middleware' => ['auth:api'], 'prefix' => '/video'], function($router){
     
-});
+        $router->post('/upload', [
+            VideoController::class, 'upload'
+        ])->name('video.upload');
 
-Route::group(['middleware' => ['auth:api'], 'prefix' => '/video'], function($router){
-  
-    $router->post('/upload', [
-        VideoController::class, 'upload'
-    ])->name('video.upload');
+        $router->post('/upload-banner', [
+            VideoController::class, 'uploadBanner'
+        ])->name('video.upload.banner');
 
-    $router->post('/upload-banner', [
-        VideoController::class, 'uploadBanner'
-    ])->name('video.upload.banner');
+        $router->post('/', [
+            VideoController::class, 'create'
+        ])->name('video.create');
 
-    $router->post('/', [
-        VideoController::class, 'create'
-    ])->name('video.create');
+        $router->post('/{video}/republish', [
+            VideoController::class, 'republish'
+        ])->name('video.republish');
 
-    $router->post('/{video}/republish', [
-        VideoController::class, 'republish'
-    ])->name('video.republish');
+        $router->put('/{video}/state', [
+            VideoController::class, 'changeState'
+        ])->name('video.change.state');
 
-    $router->put('/{video}/state', [
-        VideoController::class, 'changeState'
-    ])->name('change.state');
+        $router->put('/{video}', [
+            VideoController::class, 'update'
+        ])->name('video.update');
 
-    $router->get('/liked', [
-        VideoController::class, 'likedByCurrentUser'
-    ])->name('video.liked');
+        $router->get('/liked', [
+            VideoController::class, 'likedByCurrentUser'
+        ])->name('video.liked');
 
-    $router->delete('/{video}', [
-        VideoController::class, 'delete'
-    ])->name('video.delete');
+        $router->get('/{video}/statistics', [
+            VideoController::class, 'statistics'
+        ])->name('video.listatisticsked');
+
+        $router->get('/favourites', [
+            VideoController::class, 'favourites'
+        ])->name('video.favourites');
+
+        $router->delete('/{video}', [
+            VideoController::class, 'delete'
+        ])->name('video.delete');
    
-});
+    });
+
+   
+
 
 Route::group(['middleware' => ['auth:api'], 'prefix' => '/category'], function($router){
     $router->get('/', [
@@ -176,9 +190,22 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/playlist'], function($
         PlaylistController::class, 'my'
     ])->name('playlist.my');
 
+    $router->get('/{playlist}', [
+        PlaylistController::class, 'show'
+    ])->name('playlist.show');
+
     $router->post('/', [
         PlaylistController::class, 'create'
     ])->name('playlist.create');
+    
+    $router->match(['post', 'put'],'/{playlist}/sort', [
+        PlaylistController::class, 'sortVideos'
+    ])->name('playlist.sort');
+    
+    $router->match(['post', 'put'],'/{playlist}/{video}', [
+        PlaylistController::class, 'addVideo'
+    ])->name('playlist.add-video');
+
 });
 
 Route::group(['middleware' => ['auth:api'], 'prefix' => '/tag'], function($router){
