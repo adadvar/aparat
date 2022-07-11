@@ -1,9 +1,17 @@
-import User from './Components/User';
+import React, { Component } from 'react';
+import './App.css'
 
-function App(){
-  return (
-    <User/>
-  );
+class App extends Component { 
+  
+  render() {
+    return (
+      'hi '
+    );
+  }
+
+ 
 }
+
+
 
 export default App;

@@ -1,0 +1,43 @@
+body{
+    background: #fff;
+    text-align: center;
+}
+
+input.search {
+    display: block;
+    padding: 10px;
+    margin: 10px auto;
+    width: 400px;
+}
+
+.post-panel {
+    border: 2px #888 solid;
+    background: #eee;
+}
+
+.post-panel h2 {
+    padding:  8px;
+    margin: 0;
+    background: lightblue;
+    border-bottom: double #888;
+}
+
+.post-panel .post {
+    background: #fff;
+    padding: 0 5px;
+    margin: 5px;
+}
+
+.post-panel .post h3 {
+    text-align: left;
+    background: lightgreen;
+    border: 1px solid #444;
+    margin: 0;
+}
+
+.post-panel .post p {
+    padding: 0;
+    margin: 0;
+    margin-top: 8px;
+    text-align: left;
+}
