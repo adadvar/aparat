@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
 import {Provider} from 'react-redux';
 import './App.css';
-import Shop from './Components/Shop';
-import store from './redux/ShopStore';
+import Counter from './Components/Counter';
+import CounterButtons from './Components/CounterButtons';
+import CounterStore from './redux/CounterStore';
 
 class App extends Component { 
   
   render() {
     return (
-      <Provider store={store}>
+      <Provider store={CounterStore}>
         <div className='app'>
-          <Shop />
+          <Counter/>
+          <CounterButtons />
         </div>
       </Provider>
     );
