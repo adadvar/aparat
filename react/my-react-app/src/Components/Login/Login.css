@@ -1,0 +1,45 @@
+.Login {
+    background: #eee;
+    border: 1px solid #993232;
+    padding: 0.5em;
+}
+
+.Login > form > .input-box {
+    margin-bottom: 3px;
+
+}
+
+.Login > form > .input-box > label {
+    display: block;
+}
+
+.Login > form > .input-box > .input-control {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 8px;
+    border: 1px solid #a2a2a2;
+    padding: 5px;
+    outline: none !important;
+}
+
+.Login > form > .input-box > .input-control:focus,
+.Login > form > .input-box > .input-control:hover{
+    background: #eee;
+    background-color: #999;
+}
+
+.Login > form > .input-box > .button {
+    border-radius: 8px;
+    border: 1px solid #a2a2a2;
+    padding: 5px 10px;
+    outline: none !important;
+    background: #fff;
+}
+
+.Login > form > .input-box > .button:hover, .Login > form > .input-box > .button:focus {
+    background: #eee;
+    background-color: #999;
+}
+
+    

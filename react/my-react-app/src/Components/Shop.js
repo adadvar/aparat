@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {connect} from 'react-redux';
 import ShopItem from './ShopItem';
+import Card from './Card';
 
 class Shop extends Component {
  
@@ -11,7 +12,6 @@ class Shop extends Component {
     }
 
     render(){
-        console.log(this.props);
         return (
             <>
                 <Card />
