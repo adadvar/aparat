@@ -13,7 +13,6 @@ class UploadVideoRequest extends FormRequest
      */
     public function authorize()
     {
-
         return true;
     }
 

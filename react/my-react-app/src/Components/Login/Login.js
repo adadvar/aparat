@@ -1,18 +1,30 @@
 import React, {Component} from "react";
+import axios from '../axios/base.js'
 import './Login.css';
+
 
 class Login extends Component {
     usernameInput = null;
     passwordInput = null;
 
+    login = (data) => {
+        axios.post('login', data)
+                .then((response) => {
+                    console.log(response); 
+                })
+                .catch((err) => {
+                    console.log(err);
+                })
+    }
+
     onSubmitForm = (e) => {
         e.preventDefault();
         let username = this.usernameInput.value.trim();
         let password = this.passwordInput.value.trim();
-        let data = {username, password};
+        let data = {email: username, password};
 
-        if(username.length >=1 && password.length >=1){
-            console.log(data); 
+        if(username.length >=1 && password.length >=1){ 
+            this.login(data);
 
         }else {
             alert('اطلاعات واردشده معتبر نمیباشد');

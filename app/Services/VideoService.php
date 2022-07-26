@@ -81,7 +81,6 @@ class VideoService extends BaseService {
     }
 
     public static function upload(UploadVideoRequest $request){
-
         try {
 
            $video = $request->file('video');
