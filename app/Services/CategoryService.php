@@ -49,8 +49,9 @@ class CategoryService extends BaseService {
             }
             $category = $user->categories()->create($data);
 
-            return response([$category], 200);
+            DB::commit();
 
+            return response([$category], 200);
         }catch(Exception $e){
             DB::rollBack();
             return response(['message' => 'An error has occurred !'], 500);
