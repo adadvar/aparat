@@ -25,7 +25,6 @@ class ListTagsRequest extends FormRequest
     public function rules()
     {
         return [
-            
         ];
     }
 }
