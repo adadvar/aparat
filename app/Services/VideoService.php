@@ -48,7 +48,7 @@ class VideoService extends BaseService {
 
         $result = $videos
             ->orderBy('id')
-            ->paginate(10);
+            ->get();
 
         return $result;
     }
