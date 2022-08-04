@@ -29,16 +29,16 @@ class CreateVideoRequest extends FormRequest
     public function rules()
     {
         return [
-            'video_id' => ['required', new UploadedVideoIdRule] ,
-            'title' => 'required|string|max:255' ,
-            'category' => ['required', new CategoryIdRule(CategoryIdRule::PUBLIC_CATEGORIES)] ,
-            'info' => 'nullable|string' ,
-            'tags' => 'nullable|array' ,
-            'tags.*' => 'exists:tags,id' ,
-            'playlist' => ['nullable', new OwnPlaylistIdRule] ,
-            'channel_category' => ['required', new CategoryIdRule(CategoryIdRule::PRIVATE_CATEGORIES)] ,
-            'banner' => ['nullable', new UploadedVideoBannerIdRule] ,
-            'publish_at' => 'nullable|date_format:Y-m-d H:i:s|after:now' ,
+            'video_id' => ['required', new UploadedVideoIdRule],
+            'title' => 'required|string|max:255',
+            'category' => ['required', new CategoryIdRule(CategoryIdRule::PUBLIC_CATEGORIES)],
+            'info' => 'nullable|string',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
+            'playlist' => ['nullable', new OwnPlaylistIdRule],
+            'channel_category' => ['nullable', new CategoryIdRule(CategoryIdRule::PRIVATE_CATEGORIES)],
+            'banner' => [new UploadedVideoBannerIdRule],
+            'publish_at' => 'nullable|date_format:Y-m-d H:i:s|after:now',
             'enable_comments' => 'required|boolean',
             'enable_watermark' => 'required|boolean',
         ];

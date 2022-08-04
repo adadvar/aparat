@@ -18,7 +18,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('category_id');
-            $table->unsignedBigInteger('channel_category_id');
+            $table->unsignedBigInteger('channel_category_id')->nullable();
             $table->string('slug', 50)->collation('ascii_bin');
             $table->string('title');
             $table->text('info')->nullable();
