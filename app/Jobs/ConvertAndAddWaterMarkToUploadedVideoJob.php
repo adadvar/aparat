@@ -44,7 +44,7 @@ class ConvertAndAddWaterMarkToUploadedVideoJob implements ShouldQueue
     public function handle()
     {
         $uploadedVideoPath = '/tmp/' . $this->videoId;
-        if(!Video::where('id', $this->videoId)->count()){
+        if(!Video::where('id', $this->video->id)->count()){
             Storage::disk('videos')->delete($uploadedVideoPath);
             return;
         }
