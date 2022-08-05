@@ -174,8 +174,8 @@ class VideoService extends BaseService {
 
     public static function republish(RepublishVideoRequest $request){
         try{
-            $videoRepublish = VideoRepublish::create([
-                'user_id' => auth()->id,
+            VideoRepublish::create([
+                'user_id' => auth()->id(),
                 'video_id' => $request->video->id,
             ]);
        

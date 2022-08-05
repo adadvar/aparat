@@ -26,7 +26,8 @@ class listVideRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-        ];
+      return [
+        'republished' => 'nullable|boolean'
+    ];
     }
 }
