@@ -22,6 +22,7 @@ class Video extends Model
 
     protected $fillable = ['title', 'user_id', 'category_id', 'channel_category_id', 'slug', 'info', 'duration', 'banner', 'publish_at', 'enable_comments', 'state'];
 
+    protected $with = ['playlist', 'tags'];
 
     public function playlist(){
         return $this->belongsToMany(playlist::class, 'playlist_videos');
