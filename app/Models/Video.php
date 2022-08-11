@@ -63,6 +63,14 @@ class Video extends Model
         return $this->isInState(self::STATE_BLOCKED);
     }
 
+    public function isRepublished($userId = null){
+        if($userId) {
+            return (bool)$this->republishes()->where('user_id', $userId)->count();
+        }
+
+        return (bool)$this->republishes()->count();
+    }
+
     public function getVideoLinkAttribute(){
 
         return Storage::disk('videos')
@@ -71,8 +79,10 @@ class Video extends Model
 
     public function getBannerLinkAttribute(){
 
-        return Storage::disk('videos')
-            ->url($this->user_id . '/' . $this->slug . '-banner');
+        return $this->banner 
+        ? Storage::disk('videos')
+            ->url($this->user_id . '/' . $this->slug . '-banner') . '?v=' . $this->updated_at->timestamp
+            :asset('/img/no-video.jpg');
     }
 
     public function toArray()
@@ -130,5 +140,9 @@ class Video extends Model
             })
             ->groupBy(DB::raw('videos.id'))
             ->orderBy('related_tags', 'desc');
+    }
+
+    public function republishes() {
+        return $this->hasMany(VideoRepublish::class, 'video_id', 'id');
     }
 }

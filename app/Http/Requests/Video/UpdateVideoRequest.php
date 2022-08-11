@@ -30,13 +30,13 @@ class UpdateVideoRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required|string|max:255' ,
+            'title' => 'string|max:255' ,
             'info' => 'nullable|string' ,
             'tags' => 'nullable|array' ,
             'tags.*' => 'exists:tags,id' ,
-            'category' => ['required', new CategoryIdRule(CategoryIdRule::PUBLIC_CATEGORIES)] ,
-            'channel_category' => ['required', new CategoryIdRule(CategoryIdRule::PRIVATE_CATEGORIES)] ,
-            'enable_comments' => 'required|boolean',
+            'category' => ['nullable', new CategoryIdRule(CategoryIdRule::PUBLIC_CATEGORIES)] ,
+            'channel_category' => ['nullable', new CategoryIdRule(CategoryIdRule::PRIVATE_CATEGORIES)] ,
+            'enable_comments' => 'nullable|boolean',
             'banner' => ['nullable', new UploadedVideoBannerIdRule] ,
         ];
     }

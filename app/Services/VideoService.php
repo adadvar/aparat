@@ -96,7 +96,6 @@ class VideoService extends BaseService {
     }
 
     public static function uploadBanner(UploadVideoBannerRequest $request){
-
         try {
 
            $banner = $request->file('banner');
@@ -131,7 +130,7 @@ class VideoService extends BaseService {
             ]); 
 
             $video->slug = uniqueId($video->id);
-            $video->banner = $video->slug . '-banner';;
+            $video->banner = $request->banner ? $video->slug . '-banner' : null;
             $video->save();
 
             event(new UploadNewVideo($video, $request));
@@ -215,7 +214,7 @@ class VideoService extends BaseService {
     }
 
     public static function likedByCurrentUser(likedByCurrentUserVideoRequest $request){
-        $user = $request->user();
+        $user = $request->user();  
         $videos = $user->favouriteVideos()
             ->paginate();
         return $videos;    
@@ -225,8 +224,16 @@ class VideoService extends BaseService {
     {
         try {
             DB::beginTransaction();  
-            $request->video->forceDelete();
-            event(new DeleteVideo($request->video));
+            if($request->video->user_id === $request->user()->id){
+
+                $request->video->forceDelete();
+                event(new DeleteVideo($request->video));
+            }else {
+                $request->video
+                ->republishes()
+                ->where('user_id', $request->user()->id)
+                ->delete();
+            }
             DB::commit();
             return response(['message' => 'حذف با موفقیت انجام شد'], 200);
         } catch (Exception $exception) {
@@ -260,7 +267,6 @@ class VideoService extends BaseService {
     }
 
     public static function update(UpdateVideoRequest $request){
-
         $video = $request->video;
 
         try {
@@ -284,6 +290,8 @@ class VideoService extends BaseService {
             if($request->tags){
                 $video->tags()->sync($request->tags);
             }
+
+            $video->save();
 
             DB::commit();
 

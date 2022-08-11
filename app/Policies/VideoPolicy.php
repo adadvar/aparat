@@ -72,7 +72,13 @@ class VideoPolicy
 
    public function delete(User $user, Video $video)
     {
-        return $user->id === $video->user_id;
+        $result = $user->id === $video->user_id;
+
+        if(!$result) {
+            $result = $video->isRepublished($user->id);
+        }
+
+        return $result;
     }
 
     public function showStatistics(User $user, Video $video)
