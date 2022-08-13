@@ -278,16 +278,15 @@ class VideoService extends BaseService {
             if ($request->has('category')) $video->category_id = $request->category;
             if ($request->has('chanel_category')) $video->chanel_category_id = $request->chanel_category;
             if ($request->has('enable_comments')) $video->enable_comments = $request->enable_comments;
-            $video->save();
 
-            Storage::disk('videos')->delete(auth()->id() . '/' . $video->banner);
-
+            
             if($request->banner){
-                Storage::disk('videos')->move('/tmp/'. $request->banner ,auth()->id() . '/' . $video->banner);
+              Storage::disk('videos')->delete(auth()->id() . '/' . $video->banner);
+              Storage::disk('videos')->move('/tmp/'. $request->banner ,auth()->id() . '/' . $video->banner);
             }
 
 
-            if($request->tags){
+            if(!empty($request->tags)){
                 $video->tags()->sync($request->tags);
             }
 
