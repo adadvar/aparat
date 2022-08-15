@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -23,6 +24,8 @@ class Video extends Model
     protected $fillable = ['title', 'user_id', 'category_id', 'channel_category_id', 'slug', 'info', 'duration', 'banner', 'publish_at', 'enable_comments', 'state'];
 
     protected $with = ['playlist', 'tags'];
+
+    protected $appends = ['likeCount', 'age'];
 
     public function playlist(){
         return $this->belongsToMany(playlist::class, 'playlist_videos');
@@ -85,6 +88,16 @@ class Video extends Model
             :asset('/img/no-video.jpg');
     }
 
+    public function getLikeCountAttribute()
+    {
+        return $this->likes()->count();
+    }
+
+    public function getAgeAttribute()
+    {
+        return Carbon::now()->diffInDays($this->created_at);
+    }
+
     public function toArray()
     {
         $data = parent::toArray();
@@ -125,6 +138,10 @@ class Video extends Model
 
     public function comments(){
         return $this->hasMany(Comment::class);
+    }
+
+    public function likes(){
+        return $this->hasMany(VideoFavourite::class);
     }
 
     public function related(){

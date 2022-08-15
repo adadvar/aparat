@@ -182,13 +182,15 @@ class UserService extends BaseService {
     public static function followings(FollowingUserRequest $request) {
         return $request->user()
             ->followings()
-            ->paginate();
+            ->join('channels', 'users.id', 'channels.user_id')
+            ->get(['users.id', 'channels.name', 'channels.banner', 'avatar', 'website', 'followers.created_at']);
     }
 
     public static function followers(FollowingUserRequest $request) {
         return $request->user()
             ->followers()
-            ->paginate();
+            ->join('channels', 'users.id', 'channels.user_id')
+            ->get(['users.id', 'channels.name', 'channels.banner', 'avatar', 'website', 'followers.created_at']);
     }
 
     public static function unregister(UnregisterUserRequest $request){

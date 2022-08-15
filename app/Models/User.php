@@ -63,6 +63,12 @@ class User extends Authenticatable
         $this->attributes['mobile'] = to_valid_mobile_number($value);
     }
 
+    public function getAvatarAttribute(){
+        return $this->attributes['avatar']
+        ? $this-> attributes['avatar']
+        : asset('img/avatar.png') ;
+    }
+
     public function channel(){
         return $this->hasOne(Channel::class);
     }
