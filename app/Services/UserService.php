@@ -182,15 +182,29 @@ class UserService extends BaseService {
     public static function followings(FollowingUserRequest $request) {
         return $request->user()
             ->followings()
-            ->join('channels', 'users.id', 'channels.user_id')
-            ->get(['users.id', 'channels.name', 'channels.banner', 'avatar', 'website', 'followers.created_at']);
+            ->leftJoin('channels', 'users.id', 'channels.user_id')
+            ->leftJoin('followers as followers2', 'users.id', 'followers2.user_id2')
+            ->leftJoin('videos', 'users.id', 'videos.user_id')
+            ->groupBy('users.id')
+            ->get([
+              'users.id', 'channels.name', 'channels.banner', 'avatar', 'website', 
+              DB::raw('count(followers2.user_id2) as followers_count'),
+              DB::raw('count(videos.user_id) as videos_count'),
+              'followers.created_at']);
     }
 
     public static function followers(FollowingUserRequest $request) {
         return $request->user()
             ->followers()
-            ->join('channels', 'users.id', 'channels.user_id')
-            ->get(['users.id', 'channels.name', 'channels.banner', 'avatar', 'website', 'followers.created_at']);
+            ->leftJoin('channels', 'users.id', 'channels.user_id')
+            ->leftJoin('followers as followers2', 'users.id', 'followers2.user_id2')
+            ->leftJoin('videos', 'users.id', 'videos.user_id')
+            ->groupBy('users.id')
+            ->get([
+              'users.id', 'channels.name', 'channels.banner', 'avatar', 'website', 
+              DB::raw('count(followers2.user_id2) as followers_count'),
+              DB::raw('count(videos.user_id) as videos_count'),
+              'followers.created_at']);
     }
 
     public static function unregister(UnregisterUserRequest $request){

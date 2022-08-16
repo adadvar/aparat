@@ -13,14 +13,18 @@ use Illuminate\Support\Facades\Log;
 
 class CommentService extends BaseService {
 
-    public static function index(ListCommentRequest $request){
-        $comments = Comment::channelComments($request->user()->id);
+  public static function index(ListCommentRequest $request)
+  {
+      $comments = Comment::channelComments($request->user()->id);
 
-        if($request->has('state')) {
-            $comments = $comments->where('comments.state', $request->state);
-        }
-        return $comments->get() ;
-    }
+      if ($request->has('state')) {
+          $comments = $comments->where('comments.state', $request->state);
+      }
+
+      return $comments
+      ->with('user:id,avatar,name')
+      ->get();
+  }
 
     public static function create(CreateCommentRequest $request){
         $user = $request->user();

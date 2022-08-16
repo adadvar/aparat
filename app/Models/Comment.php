@@ -19,21 +19,21 @@ class Comment extends Model
         self::STATE_ACCEPTED,
     ];
 
-    protected $table = 'Comments';
+    protected $table = 'comments';
 
     protected $fillable = ['user_id', 'video_id', 'parent_id', 'body', 'state'];
 
 
     public function video(){
-        return $this->belongsToMany(Video::class);
+        return $this->belongsTo(Video::class);
     }
 
     public function user(){
-        return $this->belongsToMany(User::class);
+        return $this->belongsTo(User::class);
     }
 
     public function parent(){
-        return $this->belongsToMany(Comment::class, 'parent_id');
+        return $this->belongsTo(Comment::class, 'parent_id');
     }
 
     public function children(){
@@ -41,9 +41,10 @@ class Comment extends Model
     }
 
     public static function channelComments($userId){
+      $path = asset('videos/' . $userId) . '/';
         return  Comment::join('videos', 'comments.video_id', '=', 'videos.id')
-            ->selectRaw('comments.*')
-            ->where('videos.user_id', $userId);
+          ->where('videos.user_id', $userId)
+          ->selectRaw('comments.*, videos.banner as video_banner, "' . $path . '" as banner_path');
     }
 
     public static function boot(){
