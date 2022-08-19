@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -23,6 +24,7 @@ class Comment extends Model
 
     protected $fillable = ['user_id', 'video_id', 'parent_id', 'body', 'state'];
 
+    protected $appends=['age'];
 
     public function video(){
         return $this->belongsTo(Video::class);
@@ -45,6 +47,11 @@ class Comment extends Model
         return  Comment::join('videos', 'comments.video_id', '=', 'videos.id')
           ->where('videos.user_id', $userId)
           ->selectRaw('comments.*, videos.banner as video_banner, "' . $path . '" as banner_path');
+    }
+
+    public function getAgeAttribute()
+    {
+        return Carbon::now()->diffInDays($this->created_at);
     }
 
     public static function boot(){

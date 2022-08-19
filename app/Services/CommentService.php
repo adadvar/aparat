@@ -23,6 +23,7 @@ class CommentService extends BaseService {
 
       return $comments
       ->with('user:id,avatar,name')
+      ->orderBy('comments.id')
       ->get();
   }
 

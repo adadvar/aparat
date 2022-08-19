@@ -98,11 +98,24 @@ class ChannelService extends BaseService {
 
     public static function statistics(StatisticsRequest $request) {
 
+        $topVideos = $request->user()
+            ->channelVideos()
+            ->select([
+                'videos.id', 'videos.slug', 'videos.title', 'videos.duration',
+                 DB::raw('count(video_views.id) as views'),
+            ])
+            ->leftJoin('video_views', 'videos.id', 'video_views.video_id')
+            ->groupBy('videos.id')   
+            ->orderBy('views', 'desc')
+            ->take(5)
+            ->get();
+
         $fromDate = now()->subDays($request->get('last_n_days', 7))->toDateString();
         
         $data = [  
             'views' => [],
             'total_views' => 0,
+            'top_videos' => $topVideos,
             'total_followers' => $request->user()->followers()->count(),
             'total_videos' => $request->user()->channelVideos()->count(),
             'total_comments' => Video::channelComments($request->user()->id)

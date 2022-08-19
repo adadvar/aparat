@@ -84,7 +84,7 @@ class Video extends Model
 
         return $this->banner 
         ? Storage::disk('videos')
-            ->url($this->user_id . '/' . $this->slug . '-banner') . '?v=' . $this->updated_at->timestamp
+            ->url($this->user_id . '/' . $this->slug . '-banner') . '?v=' . optional($this->updated_at)->timestamp
             :asset('/img/no-video.jpg');
     }
 
