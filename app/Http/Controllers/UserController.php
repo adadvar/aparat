@@ -10,6 +10,7 @@ use App\Http\Requests\User\FollowingUserRequest;
 use App\Http\Requests\User\FollowUserRequest;
 use App\Http\Requests\User\UnFollowUserRequest;
 use App\Http\Requests\User\UnregisterUserRequest;
+use App\Http\Requests\User\UserMeRequest;
 use App\Services\UserService;
 
 
@@ -47,5 +48,9 @@ class UserController extends Controller
 
    public function unregister(UnregisterUserRequest $request){
     return UserService::unregister($request);
-}
+  }
+
+  public function me(UserMeRequest $request){
+    return UserService::me($request);
+  }
 }

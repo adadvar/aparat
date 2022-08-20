@@ -14,6 +14,7 @@ use App\Http\Requests\User\FollowingUserRequest;
 use App\Http\Requests\User\FollowUserRequest;
 use App\Http\Requests\User\UnFollowUserRequest;
 use App\Http\Requests\User\UnregisterUserRequest;
+use App\Http\Requests\User\UserMeRequest;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -218,5 +219,13 @@ class UserService extends BaseService {
             Log::error($e);
             return response(['message' => 'An error has occurred !'], 500); 
         }
+    }
+
+    public static function me(UserMeRequest $request){
+      $result = User::where('id', $request->user()->id)
+        ->with(['channel'])
+        ->first();
+
+      return $result;
     }
 }

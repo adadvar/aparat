@@ -74,11 +74,17 @@ Route::group(['middleware' => ['auth:api']], function($router){
         $router->delete('/me' ,[
             UserController::class, 'unregister'
         ])->name('user.unregister');
+
+        $router->get('/me' ,[
+          UserController::class, 'me'
+      ])->name('user.me');
     });
 
 });
 
-Route::group(['middleware' => ['auth:api'], 'prefix' => '/channel'], function($router){
+Route::group(['prefix' => '/channel'], function($router){
+
+    Route::group(['middleware' => ['auth:api']], function($router){
 
     $router->put('/{id?}' ,[
         ChannelController::class, 'update'
@@ -95,6 +101,11 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/channel'], function($r
     $router->get('/statistics' ,[
         ChannelController::class, 'statistics'
     ])->name('channel.statistics');
+  });
+  
+  $router->get('/{channel}', [
+    ChannelController::class, 'info'
+    ])->name('channel.info');
 });
 
 Route::group(['middleware' => [], 'prefix' => '/video'], function($router){

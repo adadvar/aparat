@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Http\Requests\Channel\FollowChannelRequest;
+use App\Http\Requests\Channel\InfoRequest;
 use App\Http\Requests\Channel\StatisticsRequest;
 use App\Http\Requests\Channel\UnFollowChannelRequest;
 use App\Http\Requests\Channel\UpdateChannelRequest;
@@ -133,6 +134,26 @@ class ChannelService extends BaseService {
             $data['views'][$item->date] = $item->views;
         });
         return $data;
+    }  
+
+    public static function info(InfoRequest $request) {
+      $result = [
+        'channel' => [
+          'name' => $request->channel->name,
+          'banner' => $request->channel->banner,
+          'info' => $request->channel->info,
+          'created_at' => $request->channel->created_at,
+          'videos_count' => count($request->channel->user->channelVideos),
+          'views_count' => $request->channel->user->views()->count(),
+        ],
+        'user' => [
+          'avatar' => $request->channel->user->avatar,
+          'playlist' => $request->channel->user->playlist,
+        ],
+        'videos' => $request->channel->user->channelVideos,
+      ];
+
+      return $result;
     }  
     
 }
