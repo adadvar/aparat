@@ -5,8 +5,6 @@ use App\Exceptions\UserAlreadyRegisteredException;
 use App\Http\Requests\Auth\RegisterNewUserRequest;
 use App\Http\Requests\Auth\RegisterVerifyUserRequest;
 use App\Http\Requests\Auth\ResendVerificationCodeRequest;
-use App\Http\Requests\Channel\FollowChannelRequest;
-use App\Http\Requests\Channel\UnFollowChannelRequest;
 use App\Http\Requests\User\ChangeEmailRequest;
 use App\Http\Requests\User\ChangeEmailSubmitRequest;
 use App\Http\Requests\User\ChangePasswordRequest;
@@ -14,10 +12,12 @@ use App\Http\Requests\User\FollowingUserRequest;
 use App\Http\Requests\User\FollowUserRequest;
 use App\Http\Requests\User\UnFollowUserRequest;
 use App\Http\Requests\User\UnregisterUserRequest;
+use App\Http\Requests\User\UserLogoutRequest;
 use App\Http\Requests\User\UserMeRequest;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -212,6 +212,9 @@ class UserService extends BaseService {
         try{
             DB::beginTransaction();
             $request->user()->delete();
+            DB::table('oauth_access_tokens')
+                ->where('user_id', $request->user()->id)
+                ->delete();
             DB::commit();
             return response(['message' => 'unregistered successfully!'], 200);
         }catch(Exception $e){
@@ -227,5 +230,17 @@ class UserService extends BaseService {
         ->first();
 
       return $result;
+    }
+
+    public static function logout(UserLogoutRequest $request){
+        try {
+            $request->user()->currentAccessToken()->revoke();
+
+            return response(['message' => 'loguted successfully'], Response::HTTP_OK);
+        }catch(Exception $e) {
+            Log::error($e);
+        }
+
+        return response(['message' => 'logout failed'], Response::HTTP_BAD_REQUEST);
     }
 }

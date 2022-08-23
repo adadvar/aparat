@@ -12,6 +12,7 @@ use App\Models\Channel;
 use App\Models\User;
 use App\Models\Video;
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -137,23 +138,42 @@ class ChannelService extends BaseService {
     }  
 
     public static function info(InfoRequest $request) {
-      $result = [
+      $videos = $request->channel->user
+        ->channelVideos()
+        ->with(['playlist'])
+        ->where('state', Video::STATE_ACCEPTED)
+        ->get();
+        
+        $playlists = [];
+        foreach($videos as $video) {
+            if(count($video->playlist) > 0 ) {
+                if(empty($playlists[$video->playlist[0]->id])) {
+                    $playlists[$video->playlist[0]->id] = Arr::only($video->playlist[0]->toArray(), ['id', 'title', 'created_at']);
+                    $playlists[$video->playlist[0]->id]['size'] = 1;
+                    $playlists[$video->playlist[0]->id]['video'] = Arr::only($video->toArray(), ['id', 'slug', 'title', 'banner_link']);
+
+                }else {
+                    $playlists[$video->playlist[0]->id]['size'] ++;
+                }
+            }
+        }
+
+      return [
         'channel' => [
           'name' => $request->channel->name,
           'banner' => $request->channel->banner,
           'info' => $request->channel->info,
           'created_at' => $request->channel->created_at,
-          'videos_count' => count($request->channel->user->channelVideos),
+          'videos_count' => count($videos),
           'views_count' => $request->channel->user->views()->count(),
         ],
         'user' => [
           'avatar' => $request->channel->user->avatar,
-          'playlist' => $request->channel->user->playlist,
+          'playlists' => array_values($playlists),
         ],
-        'videos' => $request->channel->user->channelVideos,
+        'videos' => $videos,
       ];
 
-      return $result;
     }  
     
 }

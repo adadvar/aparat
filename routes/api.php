@@ -53,6 +53,10 @@ Route::group(['middleware' => ['auth:api']], function($router){
         UserController::class, 'changePassword'
     ])->name('change.password');
 
+    $router->post('logout', [
+        UserController::class,'logout'
+    ])->name('auth.logout ');
+
     Route::group(['prefix' => 'user'], function($router){
 
         $router->match(['post', 'get'],'/{channel}/follow' ,[
