@@ -64,7 +64,7 @@ class ChannelService extends BaseService {
            if($channel->banner){
                Storage::disk('channel')->delete($channel->banner);
            }
-           $channel->banner = Storage::disk('channel')->path($fileName);
+           $channel->banner = Storage::disk('channel')->url($fileName);
            $channel->save();    
            
            return response([

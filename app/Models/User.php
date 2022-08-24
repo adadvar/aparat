@@ -64,9 +64,16 @@ class User extends Authenticatable
     }
 
     public function getAvatarAttribute(){
-        return $this->attributes['avatar']
-        ? $this-> attributes['avatar']
-        : asset('img/avatar.png') ;
+        $avatar = $this->attributes['avatar'];
+
+        if(empty($avatar)) {
+          if(!empty($this->channel) && !empty($this->channel->banner)) {
+            $avatar = $this->channel->banner;
+          }else {
+            $avatar = asset('img/avatar.png');
+          }
+        }
+        return $avatar;
     }
 
     public function channel(){

@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Http\Requests\Category\CreateCategoryRequest;
+use App\Http\Requests\Category\EditCategoryRequest;
 use App\Http\Requests\Category\ListCategoryRequest;
 use App\Http\Requests\Category\UploadCategoryBannerRequest;
 use App\Models\Category;
@@ -57,5 +58,18 @@ class CategoryService extends BaseService {
             return response(['message' => 'An error has occurred !'], 500);
         }
     }
+
+    public static function edit(EditCategoryRequest $request){
+      try{
+          $category = $request->category;
+          $category->title = $request->title;
+          $request->category->save();
+
+          return response($category, 200);
+
+      }catch(Exception $e){
+          return response(['message' => 'An error has occurred !'], 500);
+      }
+  }
 
 }

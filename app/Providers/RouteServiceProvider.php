@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Category;
 use App\Models\Channel;
 use App\Models\Comment;
 use App\Models\Playlist;
@@ -53,7 +54,7 @@ class RouteServiceProvider extends ServiceProvider
     protected function configureRateLimiting()
     {
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            // return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
     }
 
@@ -62,5 +63,6 @@ class RouteServiceProvider extends ServiceProvider
         Route::model('channel', Channel::class);
         Route::model('comment', Comment::class);
         Route::model('playlist', Playlist::class);
+        Route::model('category', Category::class);
     }
 }

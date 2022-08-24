@@ -193,6 +193,10 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/category'], function($
     $router->post('/', [
         CategoryController::class, 'create'
     ])->name('category.create');
+
+    $router->put('/{category}', [
+      CategoryController::class, 'edit'
+  ])->name('category.edit');
 });
 
 

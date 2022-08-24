@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Category\CreateCategoryRequest;
+use App\Http\Requests\Category\EditCategoryRequest;
 use App\Http\Requests\Category\ListCategoryRequest;
 use App\Http\Requests\Category\UploadCategoryBannerRequest;
 use App\Services\CategoryService;
@@ -24,4 +25,8 @@ class CategoryController extends Controller
     public function create(CreateCategoryRequest $request){
         return CategoryService::create($request);
     }
+
+    public function edit(EditCategoryRequest $request){
+      return CategoryService::edit($request);
+  }
 }
