@@ -7,6 +7,7 @@ use App\Http\Requests\Channel\StatisticsRequest;
 use App\Http\Requests\Channel\UnFollowChannelRequest;
 use App\Http\Requests\Channel\UpdateChannelRequest;
 use App\Http\Requests\Channel\UpdateSocialsRequest;
+use App\Http\Requests\Channel\UpdateUserInfoRequest;
 use App\Http\Requests\Channel\UploadBannerForChannelRequest;
 use App\Models\Channel;
 use App\Models\User;
@@ -175,5 +176,10 @@ class ChannelService extends BaseService {
       ];
 
     }  
+
+    
+    public static function updateUserInfo(UpdateUserInfoRequest $request) {
+        return $request->all();
+      } 
     
 }

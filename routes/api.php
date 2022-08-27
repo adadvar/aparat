@@ -90,6 +90,15 @@ Route::group(['prefix' => '/channel'], function($router){
 
     Route::group(['middleware' => ['auth:api']], function($router){
 
+    $router->match(['post', 'put'],'/socials' ,[
+        ChannelController::class, 'updateSocials'
+    ])->name('channel.update.socials');
+
+    $router->match(['post', 'put'],'/user-info' ,[
+        ChannelController::class, 'updateUserInfo'
+    ])->name('channel.update.user-info');
+
+
     $router->put('/{id?}' ,[
         ChannelController::class, 'update'
     ])->name('channel.update');
@@ -97,10 +106,6 @@ Route::group(['prefix' => '/channel'], function($router){
     $router->match(['post', 'put'],'/' ,[
         ChannelController::class, 'uploadBanner'
     ])->name('channel.upload.banner');
-
-    $router->match(['post', 'put'],'/socials' ,[
-        ChannelController::class, 'updateSocials'
-    ])->name('channel.update.socials');
 
     $router->get('/statistics' ,[
         ChannelController::class, 'statistics'
