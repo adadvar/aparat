@@ -98,6 +98,9 @@ Route::group(['prefix' => '/channel'], function($router){
         ChannelController::class, 'updateUserInfo'
     ])->name('channel.update.user-info');
 
+    $router->match(['post', 'put'],'/user-info-confirm' ,[
+      ChannelController::class, 'updateUserInfoConfirm'
+  ])->name('channel.update.user-info-confirm');
 
     $router->put('/{id?}' ,[
         ChannelController::class, 'update'

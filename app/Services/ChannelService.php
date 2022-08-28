@@ -7,17 +7,22 @@ use App\Http\Requests\Channel\StatisticsRequest;
 use App\Http\Requests\Channel\UnFollowChannelRequest;
 use App\Http\Requests\Channel\UpdateChannelRequest;
 use App\Http\Requests\Channel\UpdateSocialsRequest;
+use App\Http\Requests\Channel\UpdateUserInfoConfirmRequest;
 use App\Http\Requests\Channel\UpdateUserInfoRequest;
 use App\Http\Requests\Channel\UploadBannerForChannelRequest;
 use App\Models\Channel;
 use App\Models\User;
 use App\Models\Video;
 use Exception;
+use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+
+const USER_CONFIRMATION_CACHE_KEY = 'user-confirmation-code';
 
 class ChannelService extends BaseService {
    public static function updateChannelInfo(UpdateChannelRequest $request){
@@ -179,7 +184,43 @@ class ChannelService extends BaseService {
 
     
     public static function updateUserInfo(UpdateUserInfoRequest $request) {
-        return $request->all();
+      try {
+        $key = USER_CONFIRMATION_CACHE_KEY . '-' . $request->user()->id;
+        $data = [
+            'code' => random_int(1000, 9999),
+            'field' => $request->getFieldName(),
+            'value' => $request->getFieldValue(),
+        ];
+
+        Cache::put($key, $data, now()->addDay()->getTimestamp());
+
+        // TODO باید کد به موبایل یا ایمیل کاربر ارسال بشه
+        Log::info('confirmation code', $data);
+
+        return response(['message' => 'کد تاییدی برای شما ارسال شد'], Response::HTTP_OK);
+
+    } catch (\Exception $exception) {
+        abort(Response::HTTP_INTERNAL_SERVER_ERROR, 'عملیات مقدور نمیباشد لطفا مجددا تلاش کنید');
+    }
+    } 
+
+      public static function updateUserInfoConfirm(UpdateUserInfoConfirmRequest $request) {
+        try {
+          $key = USER_CONFIRMATION_CACHE_KEY . '-' . $request->user()->id;
+          $data = Cache::get($key);
+
+          if (!empty($data) && $data['code'] == $request->code) {
+              $request->user()->{$data['field']} = $data['value'];
+              $request->user()->save();
+
+              return [$data['field'] => $data['value']];
+          }
+          } catch (Exception $exception) {
+              Log::error($exception);
+          }
+
+          return response(['message' => 'خطایی رخ داده است'], 500);
       } 
     
 }
+

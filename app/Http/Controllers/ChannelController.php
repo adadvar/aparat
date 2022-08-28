@@ -6,9 +6,13 @@ use App\Http\Requests\Channel\InfoRequest;
 use App\Http\Requests\Channel\StatisticsRequest;
 use App\Http\Requests\Channel\UpdateChannelRequest;
 use App\Http\Requests\Channel\UpdateSocialsRequest;
+use App\Http\Requests\Channel\UpdateUserInfoConfirmRequest;
 use App\Http\Requests\Channel\UpdateUserInfoRequest;
 use App\Http\Requests\Channel\UploadBannerForChannelRequest;
 use App\Services\ChannelService;
+use Exception;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class ChannelController extends Controller
 {
@@ -25,8 +29,12 @@ class ChannelController extends Controller
     } 
 
     public function updateUserInfo(UpdateUserInfoRequest $request){
-        return ChannelService::updateUserInfo($request);
-    } 
+      return ChannelService::updateUserInfo($request);
+    }
+
+    public function updateUserInfoConfirm(UpdateUserInfoConfirmRequest $request){
+      return ChannelService::updateUserInfoConfirm($request);
+  } 
 
     public function statistics(StatisticsRequest $request){
         return ChannelService::statistics($request);

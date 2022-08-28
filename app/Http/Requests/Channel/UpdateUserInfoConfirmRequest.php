@@ -2,14 +2,12 @@
 
 namespace App\Http\Requests\Channel;
 
-use App\Http\Requests\Auth\GetRegisterFieldAndValueTrait;
 use App\Models\User;
 use App\Rules\MobileRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateUserInfoRequest extends FormRequest
+class UpdateUserInfoConfirmRequest extends FormRequest
 {
-    use GetRegisterFieldAndValueTrait;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -29,16 +27,7 @@ class UpdateUserInfoRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required_without:mobile|email',
-            'mobile' => ['required_without:email', new MobileRule],
+            'code' => 'required|string',
         ];
-    }
-
-    public function getValidatorInstance() {
-      if($this->getFieldName() === 'mobile'){
-        $this->merge(['mobile' => $this->getFieldValue()]);
-      }
-
-      return parent::getValidatorInstance();
     }
 }
