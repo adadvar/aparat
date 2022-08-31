@@ -14,6 +14,7 @@ use App\Http\Requests\User\UnFollowUserRequest;
 use App\Http\Requests\User\UnregisterUserRequest;
 use App\Http\Requests\User\UserLogoutRequest;
 use App\Http\Requests\User\UserMeRequest;
+use App\Mail\VerificationCodeMail;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -48,6 +49,12 @@ class UserService extends BaseService {
 
 
             Log::info('SEND-REGISTER-CODE-MESSAGE-TO-USER', ['code' => $code]);
+            if($request->getFieldName() === 'email') {
+                Mail::to($request->user())->send(new VerificationCodeMail($code));
+            }
+            else {
+                \Kavenegar::Send(config('kavenegar.sender'),$value, 'کد فعال سازی' . $code);
+            }
 
             DB::commit();
             return response(['message' => 'user registered'], 200);

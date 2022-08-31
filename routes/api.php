@@ -41,6 +41,10 @@ Route::group([], function($router){
     $router->post('resend-verification-code', [
         AuthController::class, 'resendVerificationCode'
     ])->name('auth.register.resend.verification.code');
+
+    $router->get('categorized-videos', [
+        VideoController::class, 'categorizedVideos'
+    ])->name('categorized-videos');
 });
 
 Route::group(['middleware' => ['auth:api']], function($router){

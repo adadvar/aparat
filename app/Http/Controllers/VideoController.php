@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Video\CategorizedVideosRequest;
 use App\Http\Requests\Video\ChangeStateVideoRequest;
 use App\Http\Requests\Video\CreateVideoRequest;
 use App\Http\Requests\Video\DeleteVideoRequest;
@@ -76,6 +77,10 @@ class VideoController extends Controller
 
     public function favourites(FavouritesVideoListRequest $request){
         return VideoService::favourites($request);
+    }
+
+    public function categorizedVideos(CategorizedVideosRequest $request){
+        return VideoService::categorizedVideos($request);
     }
 
 }

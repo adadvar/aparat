@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Events\DeleteVideo;
 use App\Events\UploadNewVideo;
 use App\Events\VisitVideo;
+use App\Http\Requests\Video\CategorizedVideosRequest;
 use App\Http\Requests\Video\ChangeStateVideoRequest;
 use App\Http\Requests\Video\CreateVideoRequest;
 use App\Http\Requests\Video\DeleteVideoRequest;
@@ -19,6 +20,7 @@ use App\Http\Requests\Video\UnLikeVideoRequest;
 use App\Http\Requests\Video\UpdateVideoRequest;
 use App\Http\Requests\Video\UploadVideoBannerRequest;
 use App\Http\Requests\Video\UploadVideoRequest;
+use App\Models\Category;
 use App\Models\Playlist;
 use App\Models\User;
 use App\Models\Video;
@@ -76,6 +78,17 @@ class VideoService extends BaseService {
         $videoData['related_videos'] = $request->video->related()->take(5)->get();
 
         $videoData['playlist'] = $request->video->playlist()->with('videos')->first();
+
+        $user = $request->video->user;
+        $videoData['channel'] = $user->channel->toArray();
+
+        if($currentUser = $request->user('api')) {
+            $videoData['channel']['is_followed'] = (bool)$currentUser->followings()->where('user_id2', $user->id)->count();
+        } else {
+            $videoData['channel']['is_followed'] = false;
+        }
+
+        $videoData['channel']['followers_count'] = $user->followers()->count();
 
         return $videoData;
     }
@@ -324,4 +337,18 @@ class VideoService extends BaseService {
 
     }
 
+    public static function categorizedVideos(CategorizedVideosRequest $request){
+        
+        $categories = Category::whereNull('user_id')
+            ->whereHas('videos') 
+            ->with(['videos' => function ($q) {
+                $q->where('state', Video::STATE_ACCEPTED)
+                ->orderBy('id', 'desc')
+                ->take(5)
+                ->with('user:id,name', 'user.channel:id,user_id,name');
+            }])
+            ->get();
+
+        return response($categories);
+    }
 }

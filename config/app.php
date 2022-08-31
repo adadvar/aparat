@@ -179,10 +179,10 @@ return [
 
         // outer library alireza 
         ProtoneMedia\LaravelFFMpeg\Support\ServiceProvider::class,
+        Kavenegar\Laravel\ServiceProvider::class,
 
         //my custom provider alireza
         App\Providers\ModelObserverProvider::class,
-
     ],
 
     /*
@@ -199,6 +199,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
         'FFMpeg' => ProtoneMedia\LaravelFFMpeg\Support\FFMpeg::class,
+        'Kavenegar' => Kavenegar\Laravel\Facade::class,
     ])->toArray(),
 
 

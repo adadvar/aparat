@@ -10,6 +10,7 @@ use App\Http\Requests\Channel\UpdateSocialsRequest;
 use App\Http\Requests\Channel\UpdateUserInfoConfirmRequest;
 use App\Http\Requests\Channel\UpdateUserInfoRequest;
 use App\Http\Requests\Channel\UploadBannerForChannelRequest;
+use App\Mail\ConfirmationCodeMail;
 use App\Models\Channel;
 use App\Models\User;
 use App\Models\Video;
@@ -19,12 +20,14 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 const USER_CONFIRMATION_CACHE_KEY = 'user-confirmation-code';
 
 class ChannelService extends BaseService {
+
    public static function updateChannelInfo(UpdateChannelRequest $request){
 
     try{
@@ -164,6 +167,11 @@ class ChannelService extends BaseService {
             }
         }
 
+        $isFollowed = false;
+        if($currentUser = $request->user('api')) {
+            $isFollowed = (bool)$currentUser->followings()->where('user_id2', $request->channel->user->id)->count();
+        } 
+
       return [
         'channel' => [
           'name' => $request->channel->name,
@@ -172,6 +180,7 @@ class ChannelService extends BaseService {
           'created_at' => $request->channel->created_at,
           'videos_count' => count($videos),
           'views_count' => $request->channel->user->views()->count(),
+          'is_followed' => $isFollowed,
         ],
         'user' => [
           'avatar' => $request->channel->user->avatar,
@@ -194,7 +203,13 @@ class ChannelService extends BaseService {
 
         Cache::put($key, $data, now()->addDay()->getTimestamp());
 
-        // TODO باید کد به موبایل یا ایمیل کاربر ارسال بشه
+        if ($request->getFieldName() === 'email') {
+            Mail::to($request->user())->send(new ConfirmationCodeMail($data['code'], $data['value']));
+        }
+        else {
+            \Kavenegar::Send(config('kavenegar.sender'),$data['value'], 'کد تایید' . $data['code']);
+        }
+
         Log::info('confirmation code', $data);
 
         return response(['message' => 'کد تاییدی برای شما ارسال شد'], Response::HTTP_OK);
