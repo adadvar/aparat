@@ -62,4 +62,19 @@ class CommentService extends BaseService {
             return response(['message' => 'delete comment failed!'], 500);  
         }
     }
+
+    public static function forVideo(Video $video){
+        return $video->comments()->where(function ($q) {
+            $q->where('state', Comment::STATE_ACCEPTED);
+            if($authUser = auth('api')->user()) {
+                $q->orWhere([
+                    'user_id' => $authUser->id 
+                ]);
+            }
+        })
+
+            ->with('user:id,avatar,name')
+            ->orderBy('comments.id')
+            ->get();
+    }
 }

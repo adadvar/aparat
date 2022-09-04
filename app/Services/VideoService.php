@@ -73,7 +73,7 @@ class VideoService extends BaseService {
 
 
         $comments = $request->video->comments;
-        $videoData['comments'] = sort_comments($comments);
+        $videoData['comments'] = sort_comments(CommentService::forVideo(($request->video)));
 
         $videoData['related_videos'] = $request->video->related()->take(5)->get();
 
@@ -341,9 +341,39 @@ class VideoService extends BaseService {
         
         $categories = Category::whereNull('user_id')
             ->whereHas('videos') 
-            ->with(['videos' => function ($q) {
-                $q->where('state', Video::STATE_ACCEPTED)
-                ->orderBy('id', 'desc')
+            ->with(['videos' => function ($q) use ($request){
+                $q->where('state', Video::STATE_ACCEPTED);
+
+                if(!empty($request->search) && is_string($request->search)) {
+                    $q->where(function ($q) use ($request) {
+                        $q->where('title', 'like', '%' . $request->search . '%')
+                        ->orWhere('title', 'like', '%' . $request->search . '%');
+                    });
+                }
+
+                if(!empty($request->tag && is_string($request->tag))) {
+                    $q->whereExists(function ($q) use ($request) {
+                        $q->selectRaw(1)
+                        ->from('video_tags')
+                        ->whereRaw('video_tags.video_id=videos.id')
+                        ->whereRaw('video_tags.tag_id=' . $request->tag);
+                    });
+                }
+
+                if(!empty($request->playlist) && is_string($request->playlist)) {
+                    $q->whereExists(function ($q) use ($request) {
+                        $q->selectRaw(1)
+                        ->from('playlist_videos')
+                        ->whereRaw('playlist_videos.video_id=videos.id')
+                        ->whereRaw('playlist_videos.playlist_id=' . $request->playlist);
+                    });
+                }
+
+                if(!empty($request->category) && is_string($request->category)) {
+                    $q->where('category_id', $request->category);
+                }
+
+                $q->orderBy('id', 'desc')
                 ->take(5)
                 ->with('user:id,name', 'user.channel:id,user_id,name');
             }])

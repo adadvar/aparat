@@ -140,6 +140,10 @@ Route::group(['middleware' => [], 'prefix' => '/video'], function($router){
     $router->get('/{video}/show', [
         VideoController::class, 'show'
     ])->name('video.show');
+
+    $router->get('/{video}/comments', [
+        VideoController::class, 'comments'
+    ])->name('video.comments');
 });
 
     Route::group(['middleware' => ['auth:api'], 'prefix' => '/video'], function($router){
@@ -212,31 +216,35 @@ Route::group(['middleware' => ['auth:api'], 'prefix' => '/category'], function($
 });
 
 
-Route::group(['middleware' => ['auth:api'], 'prefix' => '/playlist'], function($router){
-    $router->get('/', [
-        PlaylistController::class, 'index'
-    ])->name('playlist.all');
-
-    $router->get('/my', [
-        PlaylistController::class, 'my'
-    ])->name('playlist.my');
-
+Route::group(['middleware' => [], 'prefix' => '/playlist'], function($router){
+    
     $router->get('/{playlist}', [
         PlaylistController::class, 'show'
     ])->name('playlist.show');
 
-    $router->post('/', [
-        PlaylistController::class, 'create'
-    ])->name('playlist.create');
-    
-    $router->match(['post', 'put'],'/{playlist}/sort', [
-        PlaylistController::class, 'sortVideos'
-    ])->name('playlist.sort');
-    
-    $router->match(['post', 'put'],'/{playlist}/{video}', [
-        PlaylistController::class, 'addVideo'
-    ])->name('playlist.add-video');
+    Route::group(['middleware' => ['auth:api']], function($router){
 
+        $router->get('/', [
+            PlaylistController::class, 'index'
+        ])->name('playlist.all');
+
+        $router->get('/my', [
+            PlaylistController::class, 'my'
+        ])->name('playlist.my');
+
+        $router->post('/', [
+            PlaylistController::class, 'create'
+        ])->name('playlist.create');
+        
+        $router->match(['post', 'put'],'/{playlist}/sort', [
+            PlaylistController::class, 'sortVideos'
+        ])->name('playlist.sort');
+        
+        $router->match(['post', 'put'],'/{playlist}/{video}', [
+            PlaylistController::class, 'addVideo'
+        ])->name('playlist.add-video');
+
+    });
 });
 
 Route::group(['middleware' => ['auth:api'], 'prefix' => '/tag'], function($router){

@@ -18,6 +18,8 @@ use App\Http\Requests\Video\UnLikeVideoRequest;
 use App\Http\Requests\Video\UpdateVideoRequest;
 use App\Http\Requests\Video\UploadVideoBannerRequest;
 use App\Http\Requests\Video\UploadVideoRequest;
+use App\Http\Requests\Video\VideoCommentsRequest;
+use App\Services\CommentService;
 use App\Services\VideoService;
 
 class VideoController extends Controller
@@ -81,6 +83,10 @@ class VideoController extends Controller
 
     public function categorizedVideos(CategorizedVideosRequest $request){
         return VideoService::categorizedVideos($request);
+    }
+
+    public function comments(VideoCommentsRequest $request){
+        return CommentService::forVideo($request->video);
     }
 
 }
