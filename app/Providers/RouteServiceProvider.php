@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Channel;
 use App\Models\Comment;
 use App\Models\Playlist;
+use App\Models\User;
 use App\Models\Video;
 use FFMpeg\Filters\Video\RotateFilter;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -64,5 +65,6 @@ class RouteServiceProvider extends ServiceProvider
         Route::model('comment', Comment::class);
         Route::model('playlist', Playlist::class);
         Route::model('category', Category::class);
+        Route::model('user', User::class);
     }
 }

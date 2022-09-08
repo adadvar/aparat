@@ -30,6 +30,7 @@ class CanChangeVideoStateRule implements Rule
     {
         return !empty($this->video) &&
             (
+                ($this->video->state == Video::STATE_PENDING && $value === Video::STATE_BLOCKED) ||
                 ($this->video->state == Video::STATE_CONVERTED && in_array($value, [Video::STATE_ACCEPTED, Video::STATE_BLOCKED])) ||
                 ($this->video->state == Video::STATE_ACCEPTED && $value === Video::STATE_BLOCKED) ||
                 ($this->video->state == Video::STATE_BLOCKED && $value === Video::STATE_ACCEPTED) 

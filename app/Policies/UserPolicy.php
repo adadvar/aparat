@@ -34,4 +34,16 @@ class UserPolicy
     public function seeFolloingList(User $user) {
         return true;
     }
+
+    public function list(User $user) {
+        return $user->isAdmin();
+    }
+
+    public function update(User $user) {
+        return $user->isAdmin();
+    }
+
+    public function resetPassword(User $user, User $otherUser) {
+        return $user->isAdmin();
+    }
 }

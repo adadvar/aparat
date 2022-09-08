@@ -45,12 +45,19 @@ class VideoService extends BaseService {
                 $videos = $request->republished ? Video::whereRepublished() : Video::whereNotRepublished();
             }
         } else {
-            $videos = $user ? $user->videos() : Video::query();
+            if ($user) {
+                $videos = $user->isAdmin()
+                ? Video::with('user')
+                : $user->videos();
+            }
+            else {
+                $videos = Video::query();
+            }
         }
 
         $result = $videos
             ->orderBy('id')
-            ->get();
+            ->paginate($request->per_page ?? 10);
 
         return $result;
     }

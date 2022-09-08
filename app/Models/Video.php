@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -75,6 +76,10 @@ class Video extends Model
     }
 
     public function getVideoLinkAttribute(){
+        if($cachedVideoId = Cache::get('video-file-upload-' . $this->id)) {
+            return Storage::disk('videos')
+                ->url('tmp/' .$cachedVideoId);
+        }
 
         return Storage::disk('videos')
             ->url($this->user_id . '/' . $this->slug . '.mp4');

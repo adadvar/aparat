@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
 
@@ -71,5 +72,6 @@ class ConvertAndAddWaterMarkToUploadedVideoJob implements ShouldQueue
         $this->video->save();
 
         Storage::disk('videos')->delete($uploadedVideoPath);
+        Cache::forget('video-file-upload-' . $this->video->id); 
     }
 }

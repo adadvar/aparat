@@ -12,8 +12,12 @@ use App\Http\Requests\User\FollowingUserRequest;
 use App\Http\Requests\User\FollowUserRequest;
 use App\Http\Requests\User\UnFollowUserRequest;
 use App\Http\Requests\User\UnregisterUserRequest;
+use App\Http\Requests\User\UserDeleteRequest;
+use App\Http\Requests\User\UserListRequest;
 use App\Http\Requests\User\UserLogoutRequest;
 use App\Http\Requests\User\UserMeRequest;
+use App\Http\Requests\User\UserResetPasswordRequest;
+use App\Http\Requests\User\UserUpdateRequest;
 use App\Mail\VerificationCodeMail;
 use App\Models\User;
 use Exception;
@@ -215,6 +219,20 @@ class UserService extends BaseService {
               'followers.created_at']);
     }
 
+    public static function list(UserListRequest $request){
+        return User::paginate($request->per_page ?? 10);
+    }
+
+    public static function update(UserUpdateRequest $request){
+        $request->user->update($request->validated());
+        return $request->user;
+    }
+
+    public static function resetPassword(UserResetPasswordRequest $request){
+        $request->user->update(['password' => env('REQUEST_PASSWORD_DEFAULT', bcrypt('123456'))]);
+        return response(null, Response::HTTP_ACCEPTED);
+    }
+
     public static function unregister(UnregisterUserRequest $request){
         try{
             DB::beginTransaction();
@@ -224,6 +242,22 @@ class UserService extends BaseService {
                 ->delete();
             DB::commit();
             return response(['message' => 'unregistered successfully!'], 200);
+        }catch(Exception $e){
+            DB::rollBack();
+            Log::error($e);
+            return response(['message' => 'An error has occurred !'], 500); 
+        }
+    }
+
+    public static function delete(UserDeleteRequest $request){
+        try{
+            DB::beginTransaction();
+            $request->user->delete();
+            DB::table('oauth_access_tokens')
+                ->where('user_id', $request->user->id)
+                ->delete();
+            DB::commit();
+            return response(['message' => 'user deleted successfully!'], 200);
         }catch(Exception $e){
             DB::rollBack();
             Log::error($e);

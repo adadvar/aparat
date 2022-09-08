@@ -11,6 +11,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 
 class UploadNewVideo
 {
@@ -27,6 +28,7 @@ class UploadNewVideo
     {
         $this->video = $video;
         $this->request = $request;
+        Cache::forever('video-file-upload-' . $this->video->id, $this->request->video_id);
     }
 
     /**

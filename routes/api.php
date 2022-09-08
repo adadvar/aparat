@@ -82,10 +82,26 @@ Route::group(['middleware' => ['auth:api']], function($router){
         $router->delete('/me' ,[
             UserController::class, 'unregister'
         ])->name('user.unregister');
+        
+        $router->delete('/{user}' ,[
+            UserController::class, 'delete'
+        ])->name('user.delete');
 
         $router->get('/me' ,[
-          UserController::class, 'me'
-      ])->name('user.me');
+            UserController::class, 'me'
+            ])->name('user.me');
+            
+        $router->get('/list', [
+            UserController::class, 'list'
+        ])->name('user.list');
+
+        $router->put('/{user}', [
+            UserController::class, 'update'
+        ])->name('user.update');
+
+        $router->put('/{user}/reset-password', [
+            UserController::class, 'resetPassword'
+        ])->name('user.reset-password');
     });
 
 });
