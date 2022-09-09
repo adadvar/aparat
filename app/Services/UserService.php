@@ -18,6 +18,7 @@ use App\Http\Requests\User\UserLogoutRequest;
 use App\Http\Requests\User\UserMeRequest;
 use App\Http\Requests\User\UserResetPasswordRequest;
 use App\Http\Requests\User\UserUpdateRequest;
+use App\Mail\ConfirmationCodeMail;
 use App\Mail\VerificationCodeMail;
 use App\Models\User;
 use Exception;
@@ -27,69 +28,74 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class UserService extends BaseService {
     const CHANGE_EMAIL_CACHE_KEY = 'change.email.for.user.';
 
-    public static function registerNewUser(RegisterNewUserRequest $request){
-
+    public static function registerNewUser(RegisterNewUserRequest $request)
+    {
         try {
             DB::beginTransaction();
             $field = $request->getFieldName();
             $value = $request->getFieldValue();
 
-            $user = User::where($field, $value)->first();
-            if($user){
-                if($user->verified_at){
-                    throw new UserAlreadyRegisteredException('you are registered befor!');
+            // اگر کاربر از قبل ثبت نام کرده باشد باید روال ثبت نام را قطع کنیم
+            if ($user = User::withTrashed()->where($field, $value)->first()) {
+                // اگر کاربر من ازقبل ثبت نام خودش رو کامل کرده باشه باید بهش خطا بدم
+                if ($user->verified_at) {
+                    throw new UserAlreadyRegisteredException('شما قبلا ثبت نام کرده اید');
                 }
-                return response(['message' => 'user is exist and code sended befor!']);
+
+                return response(['message' => 'کد فعالسازی قبلا برای شما ارسال شده'], 200);
             }
+
             $code = random_verification_code();
             $user = User::create([
                 $field => $value,
                 'verify_code' => $code,
             ]);
 
-
             Log::info('SEND-REGISTER-CODE-MESSAGE-TO-USER', ['code' => $code]);
-            if($request->getFieldName() === 'email') {
-                Mail::to($request->user())->send(new VerificationCodeMail($code));
-            }
-            else {
-                \Kavenegar::Send(config('kavenegar.sender'),$value, 'کد فعال سازی' . $code);
+
+            if (!env('APP_DEBUG', true)) {
+                if ($request->getFieldName() === 'email') {
+                    Mail::to($user)->send(new VerificationCodeMail($code));
+                } else {
+                    \Kavenegar::Send(config('kavenegar.sender'), $value, 'کد فعالسازی ' . $code);
+                }
             }
 
             DB::commit();
-            return response(['message' => 'user registered'], 200);
+            return response(['message' => 'کاربر ثبت موقت شد'], 200);
+        } catch (Exception $exception) {
+            Db::rollBack();
 
-        } catch (Exception $e) {
-            DB::rollBack();
-            
-            if($e instanceof UserAlreadyRegisteredException) {
-                throw $e;
+            if ($exception instanceof UserAlreadyRegisteredException) {
+                throw $exception;
             }
 
-            Log::error($e);
-            return response(['message' => 'An error has occurred !']);
+            Log::error($exception);
+            return response(['message' => 'خطایی رخ داده است'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
     public static function registerNewUserVerify(RegisterVerifyUserRequest $request){
-        $field = $request->has('email') ? 'email' : 'mobile';
-        $value = $request->input($field);
+        $field = $request->getFieldName();
+        $value = $request->getFieldValue();
         $code = $request->code;
-
         $user = User::where(['verify_code' => $code , $field => $value])->first();
+
         if(empty($user)){
             throw new ModelNotFoundException('user not found!'); 
         }
         
         $user->verify_code = null;
         $user->verified_at = now();
+        $user->password = bcrypt($value);
         $user->save();
 
-        response($user, 200);
+        return response($user, 200);
     }
 
     public static function resendVerificationCodeUser(ResendVerificationCodeRequest $request){
