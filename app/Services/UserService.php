@@ -90,6 +90,7 @@ class UserService extends BaseService {
             throw new ModelNotFoundException('user not found!'); 
         }
         
+        $value = $request->input($field);
         $user->verify_code = null;
         $user->verified_at = now();
         $user->password = bcrypt($value);

@@ -53,57 +53,68 @@ class User extends Authenticatable
     protected $casts = [
         'verified_at' => 'datetime',
     ];
- 
-    public function findForPassport($usrename){
-        $user = static::withTrashed()->where('mobile', $usrename)->orWhere('email', $usrename)->first();
+
+    public function findForPassport($username)
+    {
+
+        $user = static::withTrashed()->where('mobile', to_valid_mobile_number($username))->orWhere('email', $username)->first();
         return $user;
     }
 
-    public function setMobileAttribute($value){
+    public function setMobileAttribute($value)
+    {
         $this->attributes['mobile'] = to_valid_mobile_number($value);
     }
 
-    public function getAvatarAttribute(){
+    public function getAvatarAttribute()
+    {
         $avatar = $this->attributes['avatar'];
 
-        if(empty($avatar)) {
-          if(!empty($this->channel) && !empty($this->channel->banner)) {
-            $avatar = $this->channel->banner;
-          }else {
-            $avatar = asset('img/avatar.png');
-          }
+        if (empty($avatar)) {
+            if (!empty($this->channel) && !empty($this->channel->banner)) {
+                $avatar = $this->channel->banner;
+            } else {
+                $avatar = asset('img/avatar.png');
+            }
         }
         return $avatar;
     }
 
-    public function channel(){
+    public function channel()
+    {
         return $this->hasOne(Channel::class);
     }
 
-    public function categories(){
+    public function categories()
+    {
         return $this->hasMany(Category::class);
     }
 
-    public function playlists(){
+    public function playlists()
+    {
         return $this->hasMany(Playlist::class);
     }
 
-    public function isAdmin(){
+    public function isAdmin()
+    {
         return $this->type === User::TYPE_ADMIN;
     }
 
-    public function isBaseUser(){
+    public function isBaseUser()
+    {
         return $this->type === User::TYPE_USER;
     }
 
-    public function favouriteVideos(){
-        return $this->hasManyThrough(Video::class,
+    public function favouriteVideos()
+    {
+        return $this->hasManyThrough(
+            Video::class,
             VideoFavourite::class,
             'user_id', //republishes_video.user_id
             'id', //video.id
             'id', //user.id
             'video_id', //republishes_video.video_id
-            )->selectRaw('videos.*, true as republished');
+        )->selectRaw('videos.*, true as republished');
     }
 
     public function channelVideos()
@@ -131,50 +142,63 @@ class User extends Authenticatable
             ->union($this->republishedVideos());
     }
 
-    public function follow(User $user){
+    public function follow(User $user)
+    {
         return UserFollowing::create([
             'user_id1' => $this->id,
             'user_id2' => $user->id,
         ]);
     }
 
-    public function unfollow(User $user){
+    public function unfollow(User $user)
+    {
         return UserFollowing::where([
             'user_id1' => $this->id,
             'user_id2' => $user->id,
         ])->delete();
     }
 
-    public function followings(){
-        return $this->hasManyThrough(User::class, UserFollowing::class,
+    public function followings()
+    {
+        return $this->hasManyThrough(
+            User::class,
+            UserFollowing::class,
             'user_id1',
             'id',
             'id',
-            'user_id2');
+            'user_id2'
+        );
     }
 
-    public function followers(){
-        return $this->hasManyThrough(User::class, UserFollowing::class,
+    public function followers()
+    {
+        return $this->hasManyThrough(
+            User::class,
+            UserFollowing::class,
             'user_id2',
             'id',
             'id',
-            'user_id1');
+            'user_id1'
+        );
     }
 
-    public function views(){
+    public function views()
+    {
         return $this
             ->belongsToMany(Video::class, 'video_views')
             ->withTimestamps();
     }
 
-    public function comments(){
+    public function comments()
+    {
         return $this->hasMany(Comment::class);
     }
 
-    public static function boot(){
+    public static function boot()
+    {
         parent::boot();
 
-        static::deleting(function($comment){
+        static::deleting(function ($comment) {
             $comment->channelVideos()->delete();
             $comment->playlists()->delete();
         });
